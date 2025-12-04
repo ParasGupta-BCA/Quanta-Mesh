@@ -1,13 +1,27 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { Layout } from "@/components/layout/Layout";
+import { Hero } from "@/components/home/Hero";
+import { Benefits } from "@/components/home/Benefits";
+import { Testimonials } from "@/components/home/Testimonials";
+import { FAQ } from "@/components/home/FAQ";
+import { CTA } from "@/components/home/CTA";
+import { Helmet } from "react-helmet-async";
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <Layout>
+      <Helmet>
+        <title>Quanta Mesh - Publish Your Android App to Google Play | $25</title>
+        <meta name="description" content="Professional Android app publishing service. We publish your app to Google Play Console for just $25. Fast submission, metadata optimization, and policy compliance included." />
+        <meta name="keywords" content="android app publishing, google play console, app store submission, publish android app, app publishing service" />
+        <link rel="canonical" href="https://quantamesh.com" />
+      </Helmet>
+      
+      <Hero />
+      <Benefits />
+      <Testimonials />
+      <FAQ />
+      <CTA />
+    </Layout>
   );
 };
 
