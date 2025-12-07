@@ -29,24 +29,24 @@ export function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50">
       <div className="glass-card border-t-0 rounded-t-none">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 md:h-18 lg:h-20">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="flex items-center justify-between h-16 md:h-18">
             {/* Logo */}
             <Link 
               to="/" 
-              className="flex items-center gap-1.5 sm:gap-2 text-lg sm:text-xl lg:text-2xl font-bold flex-shrink-0"
+              className="flex items-center gap-1.5 text-xl font-bold flex-shrink-0"
             >
               <span className="gradient-text">Quanta</span>
               <span className="text-foreground">Mesh</span>
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-6">
+            {/* Desktop Navigation - visible on md and above */}
+            <div className="hidden md:flex items-center gap-1 lg:gap-2">
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                  className={`px-3 lg:px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                     location.pathname === link.path
                       ? "text-primary bg-primary/10"
                       : "text-muted-foreground hover:text-foreground hover:bg-secondary"
@@ -57,8 +57,8 @@ export function Navbar() {
               ))}
             </div>
 
-            {/* CTA Button & Auth - Desktop */}
-            <div className="hidden lg:flex items-center gap-3">
+            {/* Right Section - Desktop (md and above) */}
+            <div className="hidden md:flex items-center gap-2 lg:gap-3">
               {!loading && (
                 <>
                   {user ? (
@@ -66,12 +66,12 @@ export function Navbar() {
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="gap-2">
                           <User size={16} />
-                          <span className="max-w-[120px] truncate">
+                          <span className="max-w-[100px] truncate text-sm">
                             {user.email?.split('@')[0]}
                           </span>
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="glass-card border-border/50">
+                      <DropdownMenuContent align="end" className="bg-card border-border z-50">
                         <DropdownMenuItem 
                           onClick={handleSignOut}
                           className="cursor-pointer text-destructive focus:text-destructive"
@@ -83,13 +83,18 @@ export function Navbar() {
                     </DropdownMenu>
                   ) : (
                     <>
-                      <Button variant="ghost" size="sm" className="gap-2" asChild>
+                      <Button variant="ghost" size="sm" className="gap-1.5" asChild>
                         <Link to="/auth">
                           <LogIn size={16} />
                           Sign In
                         </Link>
                       </Button>
-                      <Button variant="outline" size="sm" className="gap-2 border-primary/50 text-primary hover:bg-primary/10" asChild>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="gap-1.5 border-primary/50 text-primary hover:bg-primary/10" 
+                        asChild
+                      >
                         <Link to="/auth?signup=true">
                           <UserPlus size={16} />
                           Sign Up
@@ -99,82 +104,13 @@ export function Navbar() {
                   )}
                 </>
               )}
-              <Button variant="gradient" size="default" asChild>
+              <Button variant="gradient" size="sm" className="lg:size-default" asChild>
                 <Link to="/order">Publish My App</Link>
               </Button>
             </div>
 
-            {/* Tablet Navigation (md to lg) */}
-            <div className="hidden md:flex lg:hidden items-center gap-2">
-              {!loading && (
-                <>
-                  {user ? (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="glass" size="sm" className="gap-1.5">
-                          <User size={14} />
-                          <span className="max-w-[80px] truncate text-xs">
-                            {user.email?.split('@')[0]}
-                          </span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="glass-card border-border/50">
-                        <DropdownMenuItem 
-                          onClick={handleSignOut}
-                          className="cursor-pointer text-destructive focus:text-destructive"
-                        >
-                          <LogOut className="mr-2 h-4 w-4" />
-                          Sign Out
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  ) : (
-                    <Button variant="ghost" size="sm" className="gap-1.5 text-xs" asChild>
-                      <Link to="/auth">
-                        <LogIn size={14} />
-                        Sign In
-                      </Link>
-                    </Button>
-                  )}
-                </>
-              )}
-              <Button variant="gradient" size="sm" className="text-xs" asChild>
-                <Link to="/order">Publish App</Link>
-              </Button>
-              <button
-                className="p-2 rounded-lg hover:bg-secondary transition-colors ml-1"
-                onClick={() => setIsOpen(!isOpen)}
-                aria-label="Toggle menu"
-              >
-                {isOpen ? <X size={22} /> : <Menu size={22} />}
-              </button>
-            </div>
-
-            {/* Mobile Auth & Menu Button */}
+            {/* Mobile Menu Button */}
             <div className="flex md:hidden items-center gap-2">
-              {!loading && !user && (
-                <Button 
-                  variant="gradient" 
-                  size="sm" 
-                  className="gap-1.5 text-xs px-3"
-                  asChild
-                >
-                  <Link to="/auth">
-                    <LogIn size={14} />
-                    <span className="hidden xs:inline">Sign In</span>
-                  </Link>
-                </Button>
-              )}
-              {!loading && user && (
-                <Button 
-                  variant="glass" 
-                  size="sm" 
-                  className="gap-1.5 text-xs px-2"
-                  onClick={handleSignOut}
-                >
-                  <User size={14} />
-                </Button>
-              )}
               <button
                 className="p-2 rounded-lg hover:bg-secondary transition-colors"
                 onClick={() => setIsOpen(!isOpen)}
@@ -186,10 +122,10 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobile & Tablet Navigation Menu */}
+        {/* Mobile Navigation Menu */}
         {isOpen && (
-          <div className="lg:hidden border-t border-border/50 animate-slide-up">
-            <div className="container mx-auto px-4 sm:px-6 py-4 space-y-2">
+          <div className="md:hidden border-t border-border/50 animate-slide-up">
+            <div className="container mx-auto px-4 py-4 space-y-2">
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
@@ -207,7 +143,7 @@ export function Navbar() {
               
               {/* Mobile Auth Section */}
               {!loading && (
-                <div className="pt-3 border-t border-border/50 space-y-2">
+                <div className="pt-3 border-t border-border/50 space-y-3">
                   {user ? (
                     <>
                       <div className="px-4 py-2 text-sm text-muted-foreground">
@@ -225,10 +161,10 @@ export function Navbar() {
                       </button>
                     </>
                   ) : (
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-3">
                       <Button 
                         variant="outline" 
-                        className="w-full gap-2 border-border/50"
+                        className="w-full gap-2"
                         onClick={() => setIsOpen(false)}
                         asChild
                       >
@@ -253,7 +189,7 @@ export function Navbar() {
                 </div>
               )}
               
-              <div className="pt-2 md:hidden">
+              <div className="pt-2">
                 <Button variant="gradient" className="w-full" asChild>
                   <Link to="/order" onClick={() => setIsOpen(false)}>
                     Publish My App
