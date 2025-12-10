@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -204,10 +204,10 @@ export default function Order() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <Button variant="gradient" asChild>
-                    <a href="/auth">Sign In</a>
+                    <Link to="/auth">Sign In</Link>
                   </Button>
                   <Button variant="outline" asChild>
-                    <a href="/auth?signup=true">Create Account</a>
+                    <Link to="/auth?signup=true">Create Account</Link>
                   </Button>
                 </div>
               </div>
