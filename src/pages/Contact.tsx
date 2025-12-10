@@ -8,6 +8,7 @@ import { Helmet } from "react-helmet-async";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { z } from "zod";
 import {
   Mail,
   Instagram,
@@ -16,6 +17,13 @@ import {
   Clock,
   CheckCircle
 } from "lucide-react";
+
+const contactSchema = z.object({
+  name: z.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name must be less than 100 characters"),
+  email: z.string().trim().email("Please enter a valid email address").max(255, "Email must be less than 255 characters"),
+  subject: z.string().trim().min(2, "Subject must be at least 2 characters").max(200, "Subject must be less than 200 characters"),
+  message: z.string().trim().min(10, "Message must be at least 10 characters").max(5000, "Message must be less than 5000 characters")
+});
 
 export default function Contact() {
   const { toast } = useToast();
@@ -28,22 +36,49 @@ export default function Contact() {
     subject: "",
     message: ""
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: "" }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+
+    // Validate form data
+    const result = contactSchema.safeParse(formData);
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach(err => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0] as string] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
+      toast({
+        title: "Validation Error",
+        description: "Please check your input and try again.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
+      const validatedData = result.data;
       const { error } = await supabase.from('contact_messages').insert({
         user_id: user?.id || null,
-        name: formData.name,
-        email: formData.email,
-        subject: formData.subject,
-        message: formData.message,
+        name: validatedData.name,
+        email: validatedData.email,
+        subject: validatedData.subject,
+        message: validatedData.message,
         status: 'unread'
       });
 
@@ -178,8 +213,10 @@ export default function Contact() {
                         value={formData.name}
                         onChange={handleInputChange}
                         placeholder="John Doe"
+                        maxLength={100}
                         required
                       />
+                      {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email">Email Address *</Label>
@@ -190,8 +227,10 @@ export default function Contact() {
                         value={formData.email}
                         onChange={handleInputChange}
                         placeholder="john@example.com"
+                        maxLength={255}
                         required
                       />
+                      {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
                     </div>
                   </div>
 
@@ -203,8 +242,10 @@ export default function Contact() {
                       value={formData.subject}
                       onChange={handleInputChange}
                       placeholder="How can we help?"
+                      maxLength={200}
                       required
                     />
+                    {errors.subject && <p className="text-xs text-destructive">{errors.subject}</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -216,8 +257,10 @@ export default function Contact() {
                       onChange={handleInputChange}
                       placeholder="Tell us more about your project or question..."
                       rows={6}
+                      maxLength={5000}
                       required
                     />
+                    {errors.message && <p className="text-xs text-destructive">{errors.message}</p>}
                   </div>
 
                   <Button 

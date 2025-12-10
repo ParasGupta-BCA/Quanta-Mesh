@@ -9,6 +9,7 @@ import { Helmet } from "react-helmet-async";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { z } from "zod";
 import {
   Upload,
   CheckCircle,
@@ -17,6 +18,18 @@ import {
   Clock,
   CreditCard
 } from "lucide-react";
+
+const orderSchema = z.object({
+  appName: z.string().trim().min(1, "App name is required").max(50, "App name must be less than 50 characters"),
+  shortDescription: z.string().trim().min(1, "Short description is required").max(80, "Short description must be 80 characters or less"),
+  fullDescription: z.string().trim().max(4000, "Full description must be less than 4000 characters").optional().or(z.literal("")),
+  category: z.string().optional().or(z.literal("")),
+  email: z.string().trim().email("Please enter a valid email address").max(255, "Email must be less than 255 characters"),
+  name: z.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name must be less than 100 characters"),
+  privacyPolicyUrl: z.string().trim().max(500, "URL too long").refine(val => !val || /^https?:\/\/.+/.test(val), "Please enter a valid URL starting with http:// or https://").optional().or(z.literal("")),
+  supportUrl: z.string().trim().max(500, "URL too long").refine(val => !val || /^https?:\/\/.+/.test(val), "Please enter a valid URL starting with http:// or https://").optional().or(z.literal("")),
+  addOns: z.array(z.string())
+});
 
 interface FormData {
   appName: string;
@@ -73,7 +86,12 @@ export default function Order() {
   const totalPrice = basePrice + addOnsTotal;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: "" }));
+    }
   };
 
   const handleAddOnToggle = (addonId: string) => {
@@ -97,22 +115,45 @@ export default function Order() {
     }
   };
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+
+    // Validate form data
+    const result = orderSchema.safeParse(formData);
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach(err => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0] as string] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
+      toast({
+        title: "Validation Error",
+        description: "Please check your input and try again.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
+      const validatedData = result.data;
       const { error } = await supabase.from('orders').insert({
         user_id: user?.id || null,
-        app_name: formData.appName,
-        short_description: formData.shortDescription,
-        full_description: formData.fullDescription || null,
-        category: formData.category || null,
-        email: formData.email,
-        customer_name: formData.name,
-        privacy_policy_url: formData.privacyPolicyUrl || null,
-        support_url: formData.supportUrl || null,
-        add_ons: formData.addOns,
+        app_name: validatedData.appName,
+        short_description: validatedData.shortDescription,
+        full_description: validatedData.fullDescription || null,
+        category: validatedData.category || null,
+        email: validatedData.email,
+        customer_name: validatedData.name,
+        privacy_policy_url: validatedData.privacyPolicyUrl || null,
+        support_url: validatedData.supportUrl || null,
+        add_ons: validatedData.addOns,
         total_price: totalPrice,
         status: 'pending'
       });
@@ -222,8 +263,10 @@ export default function Order() {
                           value={formData.name}
                           onChange={handleInputChange}
                           placeholder="John Doe"
+                          maxLength={100}
                           required
                         />
+                        {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="email">Email Address *</Label>
@@ -234,8 +277,10 @@ export default function Order() {
                           value={formData.email}
                           onChange={handleInputChange}
                           placeholder="john@example.com"
+                          maxLength={255}
                           required
                         />
+                        {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
                       </div>
                     </div>
 
@@ -247,8 +292,10 @@ export default function Order() {
                         value={formData.appName}
                         onChange={handleInputChange}
                         placeholder="My Awesome App"
+                        maxLength={50}
                         required
                       />
+                      {errors.appName && <p className="text-xs text-destructive">{errors.appName}</p>}
                     </div>
 
                     <div className="space-y-2">
@@ -263,6 +310,7 @@ export default function Order() {
                         required
                       />
                       <p className="text-xs text-muted-foreground">{formData.shortDescription.length}/80</p>
+                      {errors.shortDescription && <p className="text-xs text-destructive">{errors.shortDescription}</p>}
                     </div>
 
                     <div className="space-y-2">
@@ -274,7 +322,9 @@ export default function Order() {
                         onChange={handleInputChange}
                         placeholder="Detailed description of your app features..."
                         rows={5}
+                        maxLength={4000}
                       />
+                      {errors.fullDescription && <p className="text-xs text-destructive">{errors.fullDescription}</p>}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -306,7 +356,9 @@ export default function Order() {
                           value={formData.privacyPolicyUrl}
                           onChange={handleInputChange}
                           placeholder="https://yoursite.com/privacy"
+                          maxLength={500}
                         />
+                        {errors.privacyPolicyUrl && <p className="text-xs text-destructive">{errors.privacyPolicyUrl}</p>}
                       </div>
                     </div>
 
