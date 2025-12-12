@@ -1,11 +1,12 @@
-import { 
-  Rocket, 
-  FileSearch, 
-  Shield, 
-  Image, 
+import {
+  Rocket,
+  FileSearch,
+  Shield,
+  Image,
   Headphones,
   Clock
 } from "lucide-react";
+import { CardSpotlight } from "@/components/ui/card-spotlight";
 
 const benefits = [
   {
@@ -57,17 +58,18 @@ export function Benefits() {
         {/* Benefits Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {benefits.map((benefit, index) => (
-            <div
+            <CardSpotlight
               key={index}
-              className="glass-card-hover rounded-2xl p-6 group"
-              style={{ animationDelay: `${index * 0.1}s` }}
+              className="group cursor-default"
             >
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <benefit.icon size={24} className="text-primary" />
+              <div className="relative z-20">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                  <benefit.icon size={24} className="text-primary" />
+                </div>
+                <h3 className="text-lg font-bold mb-2 text-white">{benefit.title}</h3>
+                <p className="text-neutral-300 text-sm">{benefit.description}</p>
               </div>
-              <h3 className="text-lg font-semibold mb-2">{benefit.title}</h3>
-              <p className="text-muted-foreground text-sm">{benefit.description}</p>
-            </div>
+            </CardSpotlight>
           ))}
         </div>
       </div>
