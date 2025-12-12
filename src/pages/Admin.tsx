@@ -126,7 +126,15 @@ export default function Admin() {
   }
 
   if (!isAdmin) {
-    return null;
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
+          <p className="text-xl font-semibold">Not Authorized</p>
+          <p className="text-muted-foreground">You do not have permission to view this page.</p>
+          <p className="text-sm text-muted-foreground">Redirecting...</p>
+        </div>
+      </Layout>
+    );
   }
 
   return (
