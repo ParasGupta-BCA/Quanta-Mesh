@@ -1,4 +1,3 @@
-```javascript
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -29,6 +28,7 @@ export function Navbar() {
 
   const handleSignOut = async () => {
     await signOut();
+    setIsOpen(false);
   };
 
   return (
@@ -51,11 +51,10 @@ export function Navbar() {
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`relative px - 3 lg: px - 4 py - 2 rounded - lg text - sm font - medium transition - all duration - 300 ${
-  location.pathname === link.path
-  ? "text-primary bg-primary/10"
-  : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-} `}
+                  className={`relative px-3 lg:px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${location.pathname === link.path
+                    ? "text-primary bg-primary/10"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                    }`}
                 >
                   {link.name}
                   {link.badge && (
@@ -152,11 +151,10 @@ export function Navbar() {
                   key={link.path}
                   to={link.path}
                   onClick={() => setIsOpen(false)}
-                  className={`flex items - center justify - between px - 4 py - 3 rounded - lg text - sm font - medium transition - all duration - 300 ${
-  location.pathname === link.path
-  ? "text-primary bg-primary/10"
-  : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-} `}
+                  className={`flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 ${location.pathname === link.path
+                    ? "text-primary bg-primary/10"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                    }`}
                 >
                   {link.name}
                   {link.badge && (
@@ -239,4 +237,3 @@ export function Navbar() {
     </nav>
   );
 }
-```
