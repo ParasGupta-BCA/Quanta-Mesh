@@ -57,7 +57,7 @@ export function Navbar() {
                 >
                   {link.name}
                   {link.badge && (
-                    <span className="absolute -top-1 -right-3 flex h-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] text-primary-foreground font-bold">
+                    <span className="absolute -top-2 -right-3 flex h-4 items-center justify-center rounded-full bg-primary/30 backdrop-blur-md border border-primary/20 px-1.5 text-[9px] text-primary font-bold shadow-lg shadow-primary/20 animate-pulse">
                       {link.badge}
                     </span>
                   )}
@@ -157,7 +157,7 @@ export function Navbar() {
                 >
                   {link.name}
                   {link.badge && (
-                    <span className="px-1.5 py-0.5 rounded-full bg-primary/20 text-primary text-[10px] uppercase font-bold tracking-wider">
+                    <span className="flex h-5 items-center justify-center rounded-full bg-primary/20 backdrop-blur-md border border-primary/20 px-2 text-[10px] text-primary font-bold shadow-sm">
                       {link.badge}
                     </span>
                   )}
