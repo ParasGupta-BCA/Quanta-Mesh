@@ -51,14 +51,14 @@ export function Navbar() {
                   key={link.path}
                   to={link.path}
                   className={`relative px-3 lg:px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${location.pathname === link.path
-                      ? "text-primary bg-primary/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                    ? "text-primary bg-primary/10"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                     }`}
                 >
                   {link.name}
                   {link.badge && (
-                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground font-bold">
-                      {link.badge === "New" ? "N" : "!"}
+                    <span className="absolute -top-1 -right-3 flex h-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] text-primary-foreground font-bold">
+                      {link.badge}
                     </span>
                   )}
                 </Link>
@@ -151,8 +151,8 @@ export function Navbar() {
                   to={link.path}
                   onClick={() => setIsOpen(false)}
                   className={`flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 ${location.pathname === link.path
-                      ? "text-primary bg-primary/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                    ? "text-primary bg-primary/10"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                     }`}
                 >
                   {link.name}
