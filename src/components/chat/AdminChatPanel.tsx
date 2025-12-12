@@ -107,7 +107,7 @@ export function AdminChatPanel() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100dvh-12rem)] min-h-[500px]">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100dvh-20rem)] min-h-[400px]">
       {/* Conversations List */}
       <Card
         className={`glass-card lg:col-span-1 flex flex-col h-full ${selectedConversation ? 'hidden lg:flex' : 'flex'
