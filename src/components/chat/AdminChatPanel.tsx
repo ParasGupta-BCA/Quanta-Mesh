@@ -107,10 +107,13 @@ export function AdminChatPanel() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[600px]">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-12rem)] md:h-[600px] min-h-[500px]">
       {/* Conversations List */}
-      <Card className="glass-card lg:col-span-1 flex flex-col">
-        <CardHeader className="pb-3">
+      <Card
+        className={`glass-card lg:col-span-1 flex flex-col ${selectedConversation ? 'hidden lg:flex' : 'flex'
+          }`}
+      >
+        <CardHeader className="pb-3 border-b border-white/5">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
               <MessageCircle className="h-5 w-5" />
@@ -138,11 +141,10 @@ export function AdminChatPanel() {
                   <button
                     key={conv.id}
                     onClick={() => selectConversation(conv)}
-                    className={`w-full text-left p-3 rounded-lg transition-colors ${
-                      selectedConversation?.id === conv.id
+                    className={`w-full text-left p-3 rounded-lg transition-colors ${selectedConversation?.id === conv.id
                         ? 'bg-primary/20 border border-primary/30'
                         : 'hover:bg-secondary/50'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
@@ -178,11 +180,14 @@ export function AdminChatPanel() {
       </Card>
 
       {/* Chat Window */}
-      <Card className="glass-card lg:col-span-2 flex flex-col">
+      <Card
+        className={`glass-card lg:col-span-2 flex flex-col ${!selectedConversation ? 'hidden lg:flex' : 'flex'
+          }`}
+      >
         {selectedConversation ? (
           <>
             {/* Header */}
-            <CardHeader className="pb-3 border-b border-border">
+            <CardHeader className="pb-3 border-b border-white/5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Button
@@ -234,26 +239,23 @@ export function AdminChatPanel() {
                     {messages.map((message) => (
                       <div
                         key={message.id}
-                        className={`flex ${
-                          message.sender_type === 'admin' ? 'justify-end' : 'justify-start'
-                        }`}
+                        className={`flex ${message.sender_type === 'admin' ? 'justify-end' : 'justify-start'
+                          }`}
                       >
                         <div
-                          className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                            message.sender_type === 'admin'
+                          className={`max-w-[80%] rounded-2xl px-4 py-2 ${message.sender_type === 'admin'
                               ? 'bg-primary text-primary-foreground rounded-br-md'
                               : 'bg-secondary text-secondary-foreground rounded-bl-md'
-                          }`}
+                            }`}
                         >
                           <p className="text-sm whitespace-pre-wrap break-words">
                             {message.content}
                           </p>
                           <p
-                            className={`text-xs mt-1 ${
-                              message.sender_type === 'admin'
+                            className={`text-xs mt-1 ${message.sender_type === 'admin'
                                 ? 'text-primary-foreground/70'
                                 : 'text-muted-foreground'
-                            }`}
+                              }`}
                           >
                             {format(new Date(message.created_at), 'MMM d, HH:mm')}
                           </p>
@@ -266,7 +268,7 @@ export function AdminChatPanel() {
             </CardContent>
 
             {/* Input */}
-            <div className="p-4 border-t border-border">
+            <div className="p-4 border-t border-white/5">
               <div className="flex gap-2">
                 <Input
                   value={inputValue}
