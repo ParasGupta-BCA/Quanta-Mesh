@@ -196,9 +196,7 @@ export default function Admin() {
             </TabsContent>
 
             <TabsContent value="chat" className="outline-none">
-              <div className="glass-card rounded-xl overflow-hidden min-h-[600px] border border-border/50 shadow-2xl animate-fade-in">
-                <AdminChatPanel />
-              </div>
+              <AdminChatPanel />
             </TabsContent>
           </Tabs>
         </div>
