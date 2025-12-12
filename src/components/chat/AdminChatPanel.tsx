@@ -137,42 +137,65 @@ export function AdminChatPanel() {
               </div>
             ) : (
               <div className="space-y-1 p-2">
-                {conversations.map((conv) => (
-                  <button
-                    key={conv.id}
-                    onClick={() => selectConversation(conv)}
-                    className={`w-full text-left p-3 rounded-lg transition-colors ${selectedConversation?.id === conv.id
-                      ? 'bg-primary/20 border border-primary/30'
-                      : 'hover:bg-secondary/50'
-                      }`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-sm truncate">
-                            {conv.user_name || conv.user_email}
-                          </span>
-                          {conv.status === 'closed' && (
-                            <Badge variant="outline" className="text-xs">
-                              Closed
-                            </Badge>
-                          )}
+                {conversations.map((conv) => {
+                  const initial = (conv.user_name || conv.user_email || "?").charAt(0).toUpperCase();
+                  const isSelected = selectedConversation?.id === conv.id;
+
+                  return (
+                    <button
+                      key={conv.id}
+                      onClick={() => selectConversation(conv)}
+                      className={`w-full text-left p-4 rounded-xl transition-all duration-300 group border ${isSelected
+                          ? 'bg-primary/20 border-primary/40 shadow-[0_0_15px_rgba(139,92,246,0.15)]'
+                          : 'bg-white/5 border-transparent hover:bg-white/10 hover:border-white/10'
+                        }`}
+                    >
+                      <div className="flex items-start gap-4">
+                        {/* Avatar */}
+                        <div className={`h-10 w-10 sm:h-12 sm:w-12 rounded-full flex items-center justify-center shrink-0 transition-colors ${isSelected
+                            ? 'bg-primary text-primary-foreground shadow-inner'
+                            : 'bg-secondary text-muted-foreground group-hover:bg-primary/20 group-hover:text-primary'
+                          }`}>
+                          <span className="font-bold text-sm sm:text-base">{initial}</span>
                         </div>
-                        <p className="text-xs text-muted-foreground truncate mt-1">
-                          {conv.last_message || 'No messages yet'}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {format(new Date(conv.last_message_at || conv.created_at), 'MMM d, HH:mm')}
-                        </p>
+
+                        {/* Content */}
+                        <div className="flex-1 min-w-0 space-y-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className={`font-semibold text-sm sm:text-base truncate transition-colors ${isSelected ? 'text-primary-foreground' : 'text-foreground group-hover:text-primary/90'
+                              }`}>
+                              {conv.user_name || conv.user_email}
+                            </span>
+                            {format(new Date(conv.last_message_at || conv.created_at), 'HH:mm') && (
+                              <span className={`text-[10px] sm:text-xs shrink-0 ${isSelected ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                                }`}>
+                                {format(new Date(conv.last_message_at || conv.created_at), 'MMM d, HH:mm')}
+                              </span>
+                            )}
+                          </div>
+
+                          <p className={`text-xs sm:text-sm truncate line-clamp-1 ${isSelected ? 'text-primary-foreground/80' : 'text-muted-foreground group-hover:text-muted-foreground/80'
+                            }`}>
+                            {conv.last_message || 'No messages yet'}
+                          </p>
+
+                          <div className="flex items-center gap-2 pt-1">
+                            {conv.status === 'closed' && (
+                              <Badge variant="outline" className={`text-[10px] h-5 px-1.5 border-none bg-black/20 ${isSelected ? 'text-primary-foreground/70' : ''}`}>
+                                Closed
+                              </Badge>
+                            )}
+                            {conv.unread_count > 0 && (
+                              <Badge variant="default" className="text-[10px] h-5 min-w-[1.25rem] px-1 bg-red-500 hover:bg-red-600 border-none shadow-sm animate-pulse">
+                                {conv.unread_count}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      {conv.unread_count > 0 && (
-                        <Badge variant="destructive" className="shrink-0">
-                          {conv.unread_count}
-                        </Badge>
-                      )}
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  );
+                })}
               </div>
             )}
           </ScrollArea>
