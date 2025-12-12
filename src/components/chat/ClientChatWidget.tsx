@@ -66,32 +66,39 @@ export function ClientChatWidget() {
   return (
     <>
       {/* Chat Button */}
-      <AnimatePresence>
-        {!isOpen && (
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            className="fixed bottom-6 right-6 z-50"
-          >
-            <Button
-              onClick={handleOpen}
-              size="lg"
-              className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-shadow relative"
+      {/* Chat Button */}
+      {/* We use a fixed container for positioning, but the internal button has the custom styles */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <div
+          className={`custom-chat-btn-container ${isOpen ? 'active' : ''}`}
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <div className="custom-chat-btn-background"></div>
+          <svg viewBox="0 0 100 100" className="custom-chat-bubble">
+            <g className="bubble">
+              <path d="M 30.7873,85.113394 30.7873,46.556405 C 30.7873,41.101961
+              36.826342,35.342 40.898074,35.342 H 59.113981 C 63.73287,35.342
+              69.29995,40.103201 69.29995,46.784744" className="line line1"></path>
+              <path d="M 13.461999,65.039335 H 58.028684 C
+                63.483128,65.039335
+                69.243089,59.000293 69.243089,54.928561 V 45.605853 C
+                69.243089,40.986964 65.02087,35.419884 58.339327,35.419884" className="line line2"></path>
+            </g>
+            <circle cx="42.5" cy="50.7" r="1.9" className="circle circle1"></circle>
+            <circle r="1.9" cy="50.7" cx="49.9" className="circle circle2"></circle>
+            <circle cx="57.3" cy="50.7" r="1.9" className="circle circle3"></circle>
+          </svg>
+
+          {unreadCount > 0 && !isOpen && (
+            <Badge
+              variant="destructive"
+              className="absolute -top-1 -right-1 h-6 w-6 p-0 flex items-center justify-center text-xs rounded-full border-2 border-background animate-pulse"
             >
-              <MessageCircle className="h-6 w-6" />
-              {unreadCount > 0 && (
-                <Badge
-                  variant="destructive"
-                  className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs"
-                >
-                  {unreadCount}
-                </Badge>
-              )}
-            </Button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              {unreadCount}
+            </Badge>
+          )}
+        </div>
+      </div>
 
       {/* Chat Window */}
       <AnimatePresence>
@@ -145,26 +152,23 @@ export function ClientChatWidget() {
                   {messages.map((message) => (
                     <div
                       key={message.id}
-                      className={`flex ${
-                        message.sender_type === 'client' ? 'justify-end' : 'justify-start'
-                      }`}
+                      className={`flex ${message.sender_type === 'client' ? 'justify-end' : 'justify-start'
+                        }`}
                     >
                       <div
-                        className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                          message.sender_type === 'client'
+                        className={`max-w-[80%] rounded-2xl px-4 py-2 ${message.sender_type === 'client'
                             ? 'bg-primary text-primary-foreground rounded-br-md'
                             : 'bg-secondary text-secondary-foreground rounded-bl-md'
-                        }`}
+                          }`}
                       >
                         <p className="text-sm whitespace-pre-wrap break-words">
                           {message.content}
                         </p>
                         <p
-                          className={`text-xs mt-1 ${
-                            message.sender_type === 'client'
+                          className={`text-xs mt-1 ${message.sender_type === 'client'
                               ? 'text-primary-foreground/70'
                               : 'text-muted-foreground'
-                          }`}
+                            }`}
                         >
                           {format(new Date(message.created_at), 'HH:mm')}
                         </p>
