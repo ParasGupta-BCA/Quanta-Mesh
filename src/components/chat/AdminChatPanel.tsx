@@ -107,7 +107,7 @@ export function AdminChatPanel() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100dvh-20rem)] min-h-[400px]">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[600px] lg:h-[700px]">
       {/* Conversations List */}
       <Card
         className={`glass-card lg:col-span-1 flex flex-col h-full ${selectedConversation ? 'hidden lg:flex' : 'flex'
@@ -146,15 +146,15 @@ export function AdminChatPanel() {
                       key={conv.id}
                       onClick={() => selectConversation(conv)}
                       className={`w-full text-left p-4 rounded-xl transition-all duration-300 group border ${isSelected
-                          ? 'bg-primary/20 border-primary/40 shadow-[0_0_15px_rgba(139,92,246,0.15)]'
-                          : 'bg-white/5 border-transparent hover:bg-white/10 hover:border-white/10'
+                        ? 'bg-primary/20 border-primary/40 shadow-[0_0_15px_rgba(139,92,246,0.15)]'
+                        : 'bg-white/5 border-transparent hover:bg-white/10 hover:border-white/10'
                         }`}
                     >
                       <div className="flex items-start gap-4">
                         {/* Avatar */}
                         <div className={`h-10 w-10 sm:h-12 sm:w-12 rounded-full flex items-center justify-center shrink-0 transition-colors ${isSelected
-                            ? 'bg-primary text-primary-foreground shadow-inner'
-                            : 'bg-secondary text-muted-foreground group-hover:bg-primary/20 group-hover:text-primary'
+                          ? 'bg-primary text-primary-foreground shadow-inner'
+                          : 'bg-secondary text-muted-foreground group-hover:bg-primary/20 group-hover:text-primary'
                           }`}>
                           <span className="font-bold text-sm sm:text-base">{initial}</span>
                         </div>
