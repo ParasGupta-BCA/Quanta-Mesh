@@ -107,10 +107,10 @@ export function AdminChatPanel() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-12rem)] md:h-[600px] min-h-[500px]">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-14rem)] min-h-[500px]">
       {/* Conversations List */}
       <Card
-        className={`glass-card lg:col-span-1 flex flex-col ${selectedConversation ? 'hidden lg:flex' : 'flex'
+        className={`glass-card lg:col-span-1 flex flex-col h-full ${selectedConversation ? 'hidden lg:flex' : 'flex'
           }`}
       >
         <CardHeader className="pb-3 border-b border-white/5">
@@ -142,8 +142,8 @@ export function AdminChatPanel() {
                     key={conv.id}
                     onClick={() => selectConversation(conv)}
                     className={`w-full text-left p-3 rounded-lg transition-colors ${selectedConversation?.id === conv.id
-                        ? 'bg-primary/20 border border-primary/30'
-                        : 'hover:bg-secondary/50'
+                      ? 'bg-primary/20 border border-primary/30'
+                      : 'hover:bg-secondary/50'
                       }`}
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -181,7 +181,7 @@ export function AdminChatPanel() {
 
       {/* Chat Window */}
       <Card
-        className={`glass-card lg:col-span-2 flex flex-col ${!selectedConversation ? 'hidden lg:flex' : 'flex'
+        className={`glass-card lg:col-span-2 flex flex-col h-full ${!selectedConversation ? 'hidden lg:flex' : 'flex'
           }`}
       >
         {selectedConversation ? (
@@ -244,8 +244,8 @@ export function AdminChatPanel() {
                       >
                         <div
                           className={`max-w-[80%] rounded-2xl px-4 py-2 ${message.sender_type === 'admin'
-                              ? 'bg-primary text-primary-foreground rounded-br-md'
-                              : 'bg-secondary text-secondary-foreground rounded-bl-md'
+                            ? 'bg-primary text-primary-foreground rounded-br-md'
+                            : 'bg-secondary text-secondary-foreground rounded-bl-md'
                             }`}
                         >
                           <p className="text-sm whitespace-pre-wrap break-words">
@@ -253,8 +253,8 @@ export function AdminChatPanel() {
                           </p>
                           <p
                             className={`text-xs mt-1 ${message.sender_type === 'admin'
-                                ? 'text-primary-foreground/70'
-                                : 'text-muted-foreground'
+                              ? 'text-primary-foreground/70'
+                              : 'text-muted-foreground'
                               }`}
                           >
                             {format(new Date(message.created_at), 'MMM d, HH:mm')}
