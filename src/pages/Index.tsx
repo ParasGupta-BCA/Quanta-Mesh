@@ -58,7 +58,27 @@ const Index = () => {
                     "priceCurrency": "USD",
                     "price": "25.00",
                     "availability": "https://schema.org/InStock",
-                    "priceValidUntil": "2025-12-31"
+                    "priceValidUntil": "2025-12-31",
+                    "shippingDetails": {
+                      "@type": "OfferShippingDetails",
+                      "shippingRate": {
+                        "@type": "MonetaryAmount",
+                        "value": 0,
+                        "currency": "USD"
+                      },
+                      "shippingDestination": {
+                        "@type": "DefinedRegion",
+                        "addressCountry": "US"
+                      }
+                    },
+                    "hasMerchantReturnPolicy": {
+                      "@type": "MerchantReturnPolicy",
+                      "applicableCountry": "US",
+                      "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+                      "merchantReturnDays": 7,
+                      "returnMethod": "https://schema.org/ReturnByMail",
+                      "returnFees": "https://schema.org/FreeReturn"
+                    }
                   },
                   "aggregateRating": {
                     "@type": "AggregateRating",
@@ -71,7 +91,7 @@ const Index = () => {
           `}
         </script>
       </Helmet>
-      
+
       <Hero />
       <Benefits />
       <Testimonials />
