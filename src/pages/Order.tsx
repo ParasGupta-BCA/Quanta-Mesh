@@ -657,6 +657,7 @@ export default function Order() {
                               >
                                 <Checkbox
                                   checked={formData.addOns.includes(addon.id)}
+                                  onCheckedChange={() => { }}
                                   className="pointer-events-none"
                                 />
                                 <span className="text-sm">{addon.label}</span>
