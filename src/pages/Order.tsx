@@ -324,11 +324,16 @@ export default function Order() {
               </div>
 
               <TabsContent value="new" className="space-y-8 animate-in fade-in-50 duration-500">
-                {/* Chat Option Banner */}
                 <div className="glass-card rounded-xl p-6 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 border-primary/20 bg-primary/5">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                      <MessageCircle size={24} />
+                  <div className="flex items-center gap-6">
+                    <div className="relative w-24 h-24 shrink-0">
+                      <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse"></div>
+                      <img
+                        src="/chat-mascot.png"
+                        alt="Chat with us"
+                        className="w-full h-full object-contain relative z-10 animate-bounce duration-1000"
+                        style={{ animationDuration: '3s' }}
+                      />
                     </div>
                     <div className="text-center sm:text-left">
                       <h3 className="font-semibold text-lg">Prefer to chat with us directly?</h3>
