@@ -18,8 +18,15 @@ import {
   Shield,
   Clock,
   CreditCard,
-  LogIn
+  LogIn,
+  Package,
+  Calendar,
+  DollarSign
 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const orderSchema = z.object({
   appName: z.string().trim().min(1, "App name is required").max(50, "App name must be less than 50 characters"),
@@ -45,6 +52,14 @@ interface FormData {
   addOns: string[];
 }
 
+interface OrderItem {
+  id: string;
+  created_at: string;
+  app_name: string;
+  status: string;
+  total_price: number;
+}
+
 const addOnOptions = [
   { id: "feature-graphic", label: "Feature Graphic Design (+$15)", price: 15 },
   { id: "copywriting", label: "Store Listing Copywriting (+$20)", price: 20 },
@@ -57,6 +72,9 @@ export default function Order() {
   const { user, loading } = useAuth();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orders, setOrders] = useState<OrderItem[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+
   const [formData, setFormData] = useState<FormData>({
     appName: "",
     shortDescription: "",
@@ -86,6 +104,30 @@ export default function Order() {
     return sum + (addon?.price || 0);
   }, 0);
   const totalPrice = basePrice + addOnsTotal;
+
+  useEffect(() => {
+    if (user) {
+      fetchOrders();
+    }
+  }, [user]);
+
+  const fetchOrders = async () => {
+    setLoadingOrders(true);
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('id, created_at, app_name, status, total_price')
+        .eq('user_id', user!.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setOrders(data as OrderItem[]);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -182,6 +224,21 @@ export default function Order() {
   const isStep1Valid = formData.appName && formData.shortDescription && formData.email && formData.name;
   const isStep2Valid = files.apk && files.icon;
 
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'completed':
+      case 'paid':
+        return 'bg-success/20 text-success hover:bg-success/30';
+      case 'pending':
+        return 'bg-yellow-500/20 text-yellow-500 hover:bg-yellow-500/30';
+      case 'cancelled':
+      case 'failed':
+        return 'bg-destructive/20 text-destructive hover:bg-destructive/30';
+      default:
+        return 'bg-secondary text-secondary-foreground';
+    }
+  };
+
   // Show login prompt if not authenticated
   if (!loading && !user) {
     return (
@@ -245,395 +302,447 @@ export default function Order() {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
             {/* Header */}
-            <div className="text-center mb-12">
+            <div className="text-center mb-8">
               <h1 className="text-3xl md:text-4xl font-bold mb-4">
                 Publish Your <span className="gradient-text">App</span>
               </h1>
               <p className="text-muted-foreground">
-                Complete the form below to get started
+                Manage your orders and publish new apps
               </p>
             </div>
 
-            {/* Progress Steps */}
-            <div className="flex items-center justify-center gap-4 mb-12">
-              {[1, 2, 3].map((s) => (
-                <div key={s} className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${
-                    step >= s 
-                      ? "bg-primary text-primary-foreground" 
-                      : "bg-secondary text-muted-foreground"
-                  }`}>
-                    {step > s ? <CheckCircle size={20} /> : s}
-                  </div>
-                  {s < 3 && <div className={`w-12 h-0.5 ${step > s ? "bg-primary" : "bg-secondary"}`} />}
-                </div>
-              ))}
-            </div>
-
-            {step === 3 ? (
-              /* Confirmation */
-              <div className="glass-card rounded-2xl p-8 text-center">
-                <div className="w-20 h-20 rounded-full bg-success/20 flex items-center justify-center mx-auto mb-6">
-                  <CheckCircle size={40} className="text-success" />
-                </div>
-                <h2 className="text-2xl font-bold mb-4">Order Received!</h2>
-                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  Thank you for your order! We've received your submission and will contact you at <strong>{formData.email}</strong> within 2-4 hours with payment instructions.
-                </p>
-                <div className="glass-card rounded-xl p-6 text-left mb-8">
-                  <h3 className="font-semibold mb-4">What happens next?</h3>
-                  <ol className="space-y-3 text-sm text-muted-foreground">
-                    <li className="flex items-start gap-3">
-                      <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 text-primary text-xs font-bold">1</span>
-                      <span>We'll review your submission and send a payment link</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 text-primary text-xs font-bold">2</span>
-                      <span>After payment, we'll process your app within 24-48 hours</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 text-primary text-xs font-bold">3</span>
-                      <span>You'll receive confirmation once submitted to Google Play</span>
-                    </li>
-                  </ol>
-                </div>
-                <Button variant="gradient" asChild>
-                  <a href="/">Back to Home</a>
-                </Button>
+            <Tabs defaultValue="new" className="w-full">
+              <div className="flex justify-center mb-8">
+                <TabsList className="grid w-full max-w-md grid-cols-2">
+                  <TabsTrigger value="new">New Order</TabsTrigger>
+                  <TabsTrigger value="history" onClick={fetchOrders}>My Orders</TabsTrigger>
+                </TabsList>
               </div>
-            ) : (
-              <form onSubmit={handleSubmit}>
-                {step === 1 && (
-                  /* Step 1: App Details */
-                  <div className="glass-card rounded-2xl p-6 md:p-8 space-y-6 animate-fade-in">
-                    <h2 className="text-xl font-bold mb-6">App Details</h2>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="name">Your Name *</Label>
-                        <Input
-                          id="name"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleInputChange}
-                          placeholder="John Doe"
-                          maxLength={100}
-                          required
-                        />
-                        {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+
+              <TabsContent value="new" className="space-y-8 animate-in fade-in-50 duration-500">
+                {/* Progress Steps */}
+                <div className="flex items-center justify-center gap-4 mb-8">
+                  {[1, 2, 3].map((s) => (
+                    <div key={s} className="flex items-center gap-4">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${step >= s
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-secondary text-muted-foreground"
+                        }`}>
+                        {step > s ? <CheckCircle size={20} /> : s}
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email Address *</Label>
-                        <Input
-                          id="email"
-                          name="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          placeholder="john@example.com"
-                          maxLength={255}
-                          required
-                        />
-                        {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
-                      </div>
+                      {s < 3 && <div className={`w-12 h-0.5 ${step > s ? "bg-primary" : "bg-secondary"}`} />}
                     </div>
+                  ))}
+                </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="appName">App Name *</Label>
-                      <Input
-                        id="appName"
-                        name="appName"
-                        value={formData.appName}
-                        onChange={handleInputChange}
-                        placeholder="My Awesome App"
-                        maxLength={50}
-                        required
-                      />
-                      {errors.appName && <p className="text-xs text-destructive">{errors.appName}</p>}
+                {step === 3 ? (
+                  /* Confirmation */
+                  <div className="glass-card rounded-2xl p-8 text-center">
+                    <div className="w-20 h-20 rounded-full bg-success/20 flex items-center justify-center mx-auto mb-6">
+                      <CheckCircle size={40} className="text-success" />
                     </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="shortDescription">Short Description * (max 80 chars)</Label>
-                      <Input
-                        id="shortDescription"
-                        name="shortDescription"
-                        value={formData.shortDescription}
-                        onChange={handleInputChange}
-                        placeholder="A brief description of your app"
-                        maxLength={80}
-                        required
-                      />
-                      <p className="text-xs text-muted-foreground">{formData.shortDescription.length}/80</p>
-                      {errors.shortDescription && <p className="text-xs text-destructive">{errors.shortDescription}</p>}
+                    <h2 className="text-2xl font-bold mb-4">Order Received!</h2>
+                    <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                      Thank you for your order! We've received your submission and will contact you at <strong>{formData.email}</strong> within 2-4 hours with payment instructions.
+                    </p>
+                    <div className="glass-card rounded-xl p-6 text-left mb-8">
+                      <h3 className="font-semibold mb-4">What happens next?</h3>
+                      <ol className="space-y-3 text-sm text-muted-foreground">
+                        <li className="flex items-start gap-3">
+                          <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 text-primary text-xs font-bold">1</span>
+                          <span>We'll review your submission and send a payment link</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 text-primary text-xs font-bold">2</span>
+                          <span>After payment, we'll process your app within 24-48 hours</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 text-primary text-xs font-bold">3</span>
+                          <span>You'll receive confirmation once submitted to Google Play</span>
+                        </li>
+                      </ol>
                     </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="fullDescription">Full Description</Label>
-                      <Textarea
-                        id="fullDescription"
-                        name="fullDescription"
-                        value={formData.fullDescription}
-                        onChange={handleInputChange}
-                        placeholder="Detailed description of your app features..."
-                        rows={5}
-                        maxLength={4000}
-                      />
-                      {errors.fullDescription && <p className="text-xs text-destructive">{errors.fullDescription}</p>}
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="category">Category</Label>
-                        <select
-                          id="category"
-                          name="category"
-                          value={formData.category}
-                          onChange={handleInputChange}
-                          className="w-full h-10 px-3 rounded-lg bg-secondary border border-border text-foreground"
-                        >
-                          <option value="">Select a category</option>
-                          <option value="games">Games</option>
-                          <option value="business">Business</option>
-                          <option value="education">Education</option>
-                          <option value="entertainment">Entertainment</option>
-                          <option value="lifestyle">Lifestyle</option>
-                          <option value="productivity">Productivity</option>
-                          <option value="tools">Tools</option>
-                          <option value="other">Other</option>
-                        </select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="privacyPolicyUrl">Privacy Policy URL</Label>
-                        <Input
-                          id="privacyPolicyUrl"
-                          name="privacyPolicyUrl"
-                          value={formData.privacyPolicyUrl}
-                          onChange={handleInputChange}
-                          placeholder="https://yoursite.com/privacy"
-                          maxLength={500}
-                        />
-                        {errors.privacyPolicyUrl && <p className="text-xs text-destructive">{errors.privacyPolicyUrl}</p>}
-                      </div>
-                    </div>
-
-                    <div className="flex justify-end pt-4">
-                      <Button 
-                        type="button" 
-                        variant="gradient"
-                        onClick={() => setStep(2)}
-                        disabled={!isStep1Valid}
-                      >
-                        Continue
-                        <ArrowRight className="ml-2" size={18} />
-                      </Button>
-                    </div>
+                    <Button variant="gradient" asChild>
+                      <a href="/">Back to Home</a>
+                    </Button>
                   </div>
-                )}
+                ) : (
+                  <form onSubmit={handleSubmit}>
+                    {step === 1 && (
+                      /* Step 1: App Details */
+                      <div className="glass-card rounded-2xl p-6 md:p-8 space-y-6 animate-fade-in">
+                        <h2 className="text-xl font-bold mb-6">App Details</h2>
 
-                {step === 2 && (
-                  /* Step 2: Files & Payment */
-                  <div className="glass-card rounded-2xl p-6 md:p-8 space-y-6 animate-fade-in">
-                    <h2 className="text-xl font-bold mb-6">Upload Files & Checkout</h2>
-
-                    {/* File Uploads */}
-                    <div className="space-y-6">
-                      <div className="space-y-2">
-                        <Label>App File (APK/AAB) *</Label>
-                        <div className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${
-                          files.apk ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
-                        }`}>
-                          <input
-                            type="file"
-                            accept=".apk,.aab"
-                            onChange={(e) => handleFileChange('apk', e)}
-                            className="hidden"
-                            id="apk-upload"
-                          />
-                          <label htmlFor="apk-upload" className="cursor-pointer">
-                            {files.apk ? (
-                              <div className="flex items-center justify-center gap-2 text-primary">
-                                <CheckCircle size={20} />
-                                <span>{files.apk.name}</span>
-                              </div>
-                            ) : (
-                              <div className="text-muted-foreground">
-                                <Upload size={32} className="mx-auto mb-2" />
-                                <p>Click to upload APK or AAB</p>
-                              </div>
-                            )}
-                          </label>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <Label>App Icon (512x512 PNG) *</Label>
-                          <div className={`border-2 border-dashed rounded-xl p-4 text-center transition-colors ${
-                            files.icon ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
-                          }`}>
-                            <input
-                              type="file"
-                              accept="image/png"
-                              onChange={(e) => handleFileChange('icon', e)}
-                              className="hidden"
-                              id="icon-upload"
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-2">
+                            <Label htmlFor="name">Your Name *</Label>
+                            <Input
+                              id="name"
+                              name="name"
+                              value={formData.name}
+                              onChange={handleInputChange}
+                              placeholder="John Doe"
+                              maxLength={100}
+                              required
                             />
-                            <label htmlFor="icon-upload" className="cursor-pointer text-sm">
-                              {files.icon ? (
-                                <span className="text-primary flex items-center justify-center gap-2">
-                                  <CheckCircle size={16} />
-                                  {files.icon.name}
-                                </span>
-                              ) : (
-                                <span className="text-muted-foreground">Upload Icon</span>
-                              )}
-                            </label>
+                            {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="email">Email Address *</Label>
+                            <Input
+                              id="email"
+                              name="email"
+                              type="email"
+                              value={formData.email}
+                              onChange={handleInputChange}
+                              placeholder="john@example.com"
+                              maxLength={255}
+                              required
+                            />
+                            {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
                           </div>
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Feature Graphic (1024x500)</Label>
-                          <div className={`border-2 border-dashed rounded-xl p-4 text-center transition-colors ${
-                            files.featureGraphic ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
-                          }`}>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => handleFileChange('featureGraphic', e)}
-                              className="hidden"
-                              id="feature-upload"
+                          <Label htmlFor="appName">App Name *</Label>
+                          <Input
+                            id="appName"
+                            name="appName"
+                            value={formData.appName}
+                            onChange={handleInputChange}
+                            placeholder="My Awesome App"
+                            maxLength={50}
+                            required
+                          />
+                          {errors.appName && <p className="text-xs text-destructive">{errors.appName}</p>}
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="shortDescription">Short Description * (max 80 chars)</Label>
+                          <Input
+                            id="shortDescription"
+                            name="shortDescription"
+                            value={formData.shortDescription}
+                            onChange={handleInputChange}
+                            placeholder="A brief description of your app"
+                            maxLength={80}
+                            required
+                          />
+                          <p className="text-xs text-muted-foreground">{formData.shortDescription.length}/80</p>
+                          {errors.shortDescription && <p className="text-xs text-destructive">{errors.shortDescription}</p>}
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="fullDescription">Full Description</Label>
+                          <Textarea
+                            id="fullDescription"
+                            name="fullDescription"
+                            value={formData.fullDescription}
+                            onChange={handleInputChange}
+                            placeholder="Detailed description of your app features..."
+                            rows={5}
+                            maxLength={4000}
+                          />
+                          {errors.fullDescription && <p className="text-xs text-destructive">{errors.fullDescription}</p>}
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-2">
+                            <Label htmlFor="category">Category</Label>
+                            <select
+                              id="category"
+                              name="category"
+                              value={formData.category}
+                              onChange={handleInputChange}
+                              className="w-full h-10 px-3 rounded-lg bg-secondary border border-border text-foreground"
+                            >
+                              <option value="">Select a category</option>
+                              <option value="games">Games</option>
+                              <option value="business">Business</option>
+                              <option value="education">Education</option>
+                              <option value="entertainment">Entertainment</option>
+                              <option value="lifestyle">Lifestyle</option>
+                              <option value="productivity">Productivity</option>
+                              <option value="tools">Tools</option>
+                              <option value="other">Other</option>
+                            </select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="privacyPolicyUrl">Privacy Policy URL</Label>
+                            <Input
+                              id="privacyPolicyUrl"
+                              name="privacyPolicyUrl"
+                              value={formData.privacyPolicyUrl}
+                              onChange={handleInputChange}
+                              placeholder="https://yoursite.com/privacy"
+                              maxLength={500}
                             />
-                            <label htmlFor="feature-upload" className="cursor-pointer text-sm">
-                              {files.featureGraphic ? (
-                                <span className="text-primary flex items-center justify-center gap-2">
-                                  <CheckCircle size={16} />
-                                  {files.featureGraphic.name}
-                                </span>
-                              ) : (
-                                <span className="text-muted-foreground">Upload Graphic</span>
-                              )}
-                            </label>
+                            {errors.privacyPolicyUrl && <p className="text-xs text-destructive">{errors.privacyPolicyUrl}</p>}
                           </div>
                         </div>
-                      </div>
 
-                      <div className="space-y-2">
-                        <Label>Screenshots (2-8 images)</Label>
-                        <div className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${
-                          files.screenshots.length > 0 ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
-                        }`}>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            onChange={handleScreenshotsChange}
-                            className="hidden"
-                            id="screenshots-upload"
-                          />
-                          <label htmlFor="screenshots-upload" className="cursor-pointer">
-                            {files.screenshots.length > 0 ? (
-                              <div className="text-primary">
-                                <CheckCircle size={20} className="mx-auto mb-2" />
-                                <p>{files.screenshots.length} screenshot(s) selected</p>
-                              </div>
-                            ) : (
-                              <div className="text-muted-foreground">
-                                <Upload size={24} className="mx-auto mb-2" />
-                                <p>Upload screenshots</p>
-                              </div>
-                            )}
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Add-ons */}
-                    <div className="space-y-4">
-                      <Label>Optional Add-ons</Label>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {addOnOptions.map((addon) => (
-                          <div
-                            key={addon.id}
-                            className={`flex items-center gap-3 p-4 rounded-xl border transition-all cursor-pointer ${
-                              formData.addOns.includes(addon.id)
-                                ? "border-primary bg-primary/10"
-                                : "border-border hover:border-primary/50"
-                            }`}
-                            onClick={() => handleAddOnToggle(addon.id)}
+                        <div className="flex justify-end pt-4">
+                          <Button
+                            type="button"
+                            variant="gradient"
+                            onClick={() => setStep(2)}
+                            disabled={!isStep1Valid}
                           >
-                            <Checkbox
-                              checked={formData.addOns.includes(addon.id)}
-                              onCheckedChange={() => handleAddOnToggle(addon.id)}
-                            />
-                            <span className="text-sm">{addon.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Order Summary */}
-                    <div className="glass-card rounded-xl p-6">
-                      <h3 className="font-semibold mb-4">Order Summary</h3>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Base Package</span>
-                          <span>$25.00</span>
+                            Continue
+                            <ArrowRight className="ml-2" size={18} />
+                          </Button>
                         </div>
-                        {formData.addOns.map((id) => {
-                          const addon = addOnOptions.find(a => a.id === id);
-                          return addon ? (
-                            <div key={id} className="flex justify-between">
-                              <span className="text-muted-foreground">{addon.label.split(' (+')[0]}</span>
-                              <span>${addon.price}.00</span>
+                      </div>
+                    )}
+
+                    {step === 2 && (
+                      /* Step 2: Files & Payment */
+                      <div className="glass-card rounded-2xl p-6 md:p-8 space-y-6 animate-fade-in">
+                        <h2 className="text-xl font-bold mb-6">Upload Files & Checkout</h2>
+
+                        {/* File Uploads */}
+                        <div className="space-y-6">
+                          <div className="space-y-2">
+                            <Label>App File (APK/AAB) *</Label>
+                            <div className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${files.apk ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                              }`}>
+                              <input
+                                type="file"
+                                accept=".apk,.aab"
+                                onChange={(e) => handleFileChange('apk', e)}
+                                className="hidden"
+                                id="apk-upload"
+                              />
+                              <label htmlFor="apk-upload" className="cursor-pointer">
+                                {files.apk ? (
+                                  <div className="flex items-center justify-center gap-2 text-primary">
+                                    <CheckCircle size={20} />
+                                    <span>{files.apk.name}</span>
+                                  </div>
+                                ) : (
+                                  <div className="text-muted-foreground">
+                                    <Upload size={32} className="mx-auto mb-2" />
+                                    <p>Click to upload APK or AAB</p>
+                                  </div>
+                                )}
+                              </label>
                             </div>
-                          ) : null;
-                        })}
-                        <div className="border-t border-border pt-2 mt-2 flex justify-between font-bold text-lg">
-                          <span>Total</span>
-                          <span className="gradient-text">${totalPrice}.00</span>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                              <Label>App Icon (512x512 PNG) *</Label>
+                              <div className={`border-2 border-dashed rounded-xl p-4 text-center transition-colors ${files.icon ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                                }`}>
+                                <input
+                                  type="file"
+                                  accept="image/png"
+                                  onChange={(e) => handleFileChange('icon', e)}
+                                  className="hidden"
+                                  id="icon-upload"
+                                />
+                                <label htmlFor="icon-upload" className="cursor-pointer text-sm">
+                                  {files.icon ? (
+                                    <span className="text-primary flex items-center justify-center gap-2">
+                                      <CheckCircle size={16} />
+                                      {files.icon.name}
+                                    </span>
+                                  ) : (
+                                    <span className="text-muted-foreground">Upload Icon</span>
+                                  )}
+                                </label>
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label>Feature Graphic (1024x500)</Label>
+                              <div className={`border-2 border-dashed rounded-xl p-4 text-center transition-colors ${files.featureGraphic ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                                }`}>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => handleFileChange('featureGraphic', e)}
+                                  className="hidden"
+                                  id="feature-upload"
+                                />
+                                <label htmlFor="feature-upload" className="cursor-pointer text-sm">
+                                  {files.featureGraphic ? (
+                                    <span className="text-primary flex items-center justify-center gap-2">
+                                      <CheckCircle size={16} />
+                                      {files.featureGraphic.name}
+                                    </span>
+                                  ) : (
+                                    <span className="text-muted-foreground">Upload Graphic</span>
+                                  )}
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Screenshots (2-8 images)</Label>
+                            <div className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${files.screenshots.length > 0 ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                              }`}>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                onChange={handleScreenshotsChange}
+                                className="hidden"
+                                id="screenshots-upload"
+                              />
+                              <label htmlFor="screenshots-upload" className="cursor-pointer">
+                                {files.screenshots.length > 0 ? (
+                                  <div className="text-primary">
+                                    <CheckCircle size={20} className="mx-auto mb-2" />
+                                    <p>{files.screenshots.length} screenshot(s) selected</p>
+                                  </div>
+                                ) : (
+                                  <div className="text-muted-foreground">
+                                    <Upload size={24} className="mx-auto mb-2" />
+                                    <p>Upload screenshots</p>
+                                  </div>
+                                )}
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Add-ons */}
+                        <div className="space-y-4">
+                          <Label>Optional Add-ons</Label>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {addOnOptions.map((addon) => (
+                              <div
+                                key={addon.id}
+                                className={`flex items-center gap-3 p-4 rounded-xl border transition-all cursor-pointer ${formData.addOns.includes(addon.id)
+                                    ? "border-primary bg-primary/10"
+                                    : "border-border hover:border-primary/50"
+                                  }`}
+                                onClick={() => handleAddOnToggle(addon.id)}
+                              >
+                                <Checkbox
+                                  checked={formData.addOns.includes(addon.id)}
+                                  onCheckedChange={() => handleAddOnToggle(addon.id)}
+                                />
+                                <span className="text-sm">{addon.label}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Order Summary */}
+                        <div className="glass-card rounded-xl p-6">
+                          <h3 className="font-semibold mb-4">Order Summary</h3>
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Base Package</span>
+                              <span>$25.00</span>
+                            </div>
+                            {formData.addOns.map((id) => {
+                              const addon = addOnOptions.find(a => a.id === id);
+                              return addon ? (
+                                <div key={id} className="flex justify-between">
+                                  <span className="text-muted-foreground">{addon.label.split(' (+')[0]}</span>
+                                  <span>${addon.price}.00</span>
+                                </div>
+                              ) : null;
+                            })}
+                            <div className="border-t border-border pt-2 mt-2 flex justify-between font-bold text-lg">
+                              <span>Total</span>
+                              <span className="gradient-text">${totalPrice}.00</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Trust Badges */}
+                        <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-2">
+                            <Shield size={18} className="text-primary" />
+                            <span>Secure Payment</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Clock size={18} className="text-primary" />
+                            <span>24-48h Delivery</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CreditCard size={18} className="text-primary" />
+                            <span>Stripe / PayPal</span>
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setStep(1)}
+                            className="flex-1"
+                          >
+                            Back
+                          </Button>
+                          <Button
+                            type="submit"
+                            variant="hero"
+                            disabled={!isStep2Valid || isSubmitting}
+                            className="flex-1"
+                          >
+                            {isSubmitting ? "Submitting..." : `Submit Order - $${totalPrice}`}
+                          </Button>
                         </div>
                       </div>
-                    </div>
+                    )}
+                  </form>
+                )}
+              </TabsContent>
 
-                    {/* Trust Badges */}
-                    <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-2">
-                        <Shield size={18} className="text-primary" />
-                        <span>Secure Payment</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock size={18} className="text-primary" />
-                        <span>24-48h Delivery</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CreditCard size={18} className="text-primary" />
-                        <span>Stripe / PayPal</span>
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                      <Button 
-                        type="button" 
-                        variant="outline"
-                        onClick={() => setStep(1)}
-                        className="flex-1"
-                      >
-                        Back
-                      </Button>
-                      <Button 
-                        type="submit" 
-                        variant="hero"
-                        disabled={!isStep2Valid || isSubmitting}
-                        className="flex-1"
-                      >
-                        {isSubmitting ? "Submitting..." : `Submit Order - $${totalPrice}`}
-                      </Button>
-                    </div>
+              <TabsContent value="history" className="space-y-6 animate-in fade-in-50 duration-500">
+                {loadingOrders ? (
+                  <div className="text-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-muted-foreground">Loading your orders...</p>
+                  </div>
+                ) : orders.length === 0 ? (
+                  <div className="glass-card rounded-2xl p-8 text-center py-16">
+                    <Package size={48} className="mx-auto mb-4 text-muted-foreground/50" />
+                    <h3 className="text-lg font-semibold mb-2">No orders yet</h3>
+                    <p className="text-muted-foreground max-w-sm mx-auto mb-6">
+                      You haven't placed any orders yet. Start by filling out the form in the "New Order" tab.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid gap-4">
+                    {orders.map((order) => (
+                      <Card key={order.id} className="overflow-hidden border-border/50 bg-secondary/20 backdrop-blur-sm">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                          <CardTitle className="text-lg font-bold">
+                            {order.app_name}
+                          </CardTitle>
+                          <Badge className={getStatusColor(order.status)}>
+                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                          </Badge>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mt-2">
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <Calendar size={14} />
+                              <span>{new Date(order.created_at).toLocaleDateString()}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <DollarSign size={14} />
+                              <span>${order.total_price}</span>
+                            </div>
+                            <div className="text-xs text-muted-foreground font-mono truncate">
+                              ID: {order.id}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
                 )}
-              </form>
-            )}
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </section>
