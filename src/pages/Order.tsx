@@ -164,10 +164,10 @@ export default function Order() {
 
       toast({
         title: "Order Submitted!",
-        description: "We'll contact you shortly with payment details.",
+        description: "Redirecting to payment...",
       });
 
-      setStep(3);
+      window.location.href = "https://checkout.dodopayments.com/buy/pdt_0NUdtw0Ao78qIokxKSFMF?quantity=1&redirect_url=https://www.quantamesh.store%2Forder";
     } catch (error: any) {
       toast({
         title: "Error",
