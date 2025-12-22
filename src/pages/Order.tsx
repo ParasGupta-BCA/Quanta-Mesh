@@ -329,7 +329,7 @@ export default function Order() {
                     <div className="relative w-20 h-20 sm:w-24 sm:h-24 shrink-0">
                       <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse"></div>
                       <img
-                        src="/chat-mascot-avatar.png"
+                        src="/chat-mascot.png"
                         alt="Chat with us"
                         className="w-full h-full object-cover rounded-full relative z-10 animate-bounce duration-1000 shadow-xl border-2 border-primary/30"
                         style={{ animationDuration: '3s' }}
