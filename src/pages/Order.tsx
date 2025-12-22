@@ -21,7 +21,8 @@ import {
   LogIn,
   Package,
   Calendar,
-  DollarSign
+  DollarSign,
+  MessageCircle
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -323,6 +324,26 @@ export default function Order() {
               </div>
 
               <TabsContent value="new" className="space-y-8 animate-in fade-in-50 duration-500">
+                {/* Chat Option Banner */}
+                <div className="glass-card rounded-xl p-6 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 border-primary/20 bg-primary/5">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                      <MessageCircle size={24} />
+                    </div>
+                    <div className="text-center sm:text-left">
+                      <h3 className="font-semibold text-lg">Prefer to chat with us directly?</h3>
+                      <p className="text-muted-foreground text-sm max-w-md">
+                        Skip the forms! Talk to our admin team to discuss your app publishing needs and get a custom quote.
+                      </p>
+                    </div>
+                  </div>
+                  <Button asChild variant="outline" className="shrink-0 border-primary/50 hover:bg-primary/10 gap-2">
+                    <Link to="/chat">
+                      <MessageCircle size={16} />
+                      Chat with Admin
+                    </Link>
+                  </Button>
+                </div>
                 {/* Progress Steps */}
                 <div className="flex items-center justify-center gap-4 mb-8">
                   {[1, 2, 3].map((s) => (
