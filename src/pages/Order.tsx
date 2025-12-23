@@ -394,14 +394,6 @@ export default function Order() {
                     </div>
                   ))}
                 </div>
-                {/* Progress Bar */}
-                <div className="mb-8">
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-muted-foreground">Order Completion</span>
-                    <span className="font-medium text-primary">{Math.round(progress)}%</span>
-                  </div>
-                  <Progress value={progress} className="h-2" />
-                </div>
 
                 {/* Progress Steps */}
 
@@ -441,7 +433,28 @@ export default function Order() {
                     {step === 1 && (
                       /* Step 1: App Details */
                       <div className="glass-card rounded-2xl p-6 md:p-8 space-y-6 animate-fade-in">
-                        <h2 className="text-xl font-bold mb-6">App Details</h2>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                          <h2 className="text-xl font-bold">App Details</h2>
+                          <div className="flex items-center gap-4 text-sm">
+                            <div className="flex items-center gap-1.5 text-muted-foreground">
+                              {formData.appName ? (
+                                <>
+                                  <CheckCircle size={14} className="text-primary" />
+                                  <span className="text-xs">Auto-saved</span>
+                                </>
+                              ) : null}
+                            </div>
+                            <div className="flex items-center gap-2 bg-secondary/50 px-3 py-1 rounded-full border border-border/50">
+                              <div className="w-16 h-1.5 bg-secondary rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-primary transition-all duration-500"
+                                  style={{ width: `${progress}%` }}
+                                />
+                              </div>
+                              <span className="text-xs font-medium text-muted-foreground">{Math.round(progress)}%</span>
+                            </div>
+                          </div>
+                        </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="space-y-2">
@@ -568,7 +581,18 @@ export default function Order() {
                     {step === 2 && (
                       /* Step 2: Files & Payment */
                       <div className="glass-card rounded-2xl p-6 md:p-8 space-y-6 animate-fade-in">
-                        <h2 className="text-xl font-bold mb-6">Upload Files & Checkout</h2>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                          <h2 className="text-xl font-bold">Upload Files & Checkout</h2>
+                          <div className="flex items-center gap-2 bg-secondary/50 px-3 py-1 rounded-full border border-border/50">
+                            <div className="w-16 h-1.5 bg-secondary rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-primary transition-all duration-500"
+                                style={{ width: `${progress}%` }}
+                              />
+                            </div>
+                            <span className="text-xs font-medium text-muted-foreground">{Math.round(progress)}%</span>
+                          </div>
+                        </div>
 
                         {/* File Uploads */}
                         <div className="space-y-6">
