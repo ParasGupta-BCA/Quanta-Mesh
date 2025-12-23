@@ -126,20 +126,25 @@ export default function Order() {
     }
   }, [user]);
 
-  // Check for tab parameter in URL
+  // Check for tab parameter in URL or pending payment session
   useEffect(() => {
     const tabParam = searchParams.get("tab");
     const paymentParam = searchParams.get("payment");
+    const isPendingPayment = sessionStorage.getItem("pendingPayment");
 
     if (tabParam === "history") {
       setActiveTab("history");
+      sessionStorage.removeItem("pendingPayment"); // Clear flag on success
       if (user) fetchOrders();
+      return;
     }
 
-    if (paymentParam === "failed") {
+    // Check if explicitly failed OR if we have a pending payment flag (meaning they clicked back)
+    if (paymentParam === "failed" || isPendingPayment) {
       setShowFailedView(true);
       // Ensure we are on the new order tab to show the message
       setActiveTab("new");
+      sessionStorage.removeItem("pendingPayment"); // Clear flag so it doesn't persist
     }
   }, [searchParams, user]);
 
@@ -276,6 +281,9 @@ export default function Order() {
       const cancelUrl = `${baseUrl}?payment=failed`;
 
       const dodoUrl = `https://checkout.dodopayments.com/buy/pdt_0NUdtw0Ao78qIokxKSFMF?quantity=1&redirect_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
+
+      // Set session flag to detect "Back" button usage
+      sessionStorage.setItem("pendingPayment", "true");
 
       window.location.href = dodoUrl;
     } catch (error: any) {
@@ -480,8 +488,14 @@ export default function Order() {
                         variant="outline"
                         onClick={() => {
                           setShowFailedView(false);
-                          // Optional: Restore form data if needed, or just let them start over/retry
-                          window.location.href = "https://checkout.dodopayments.com/buy/pdt_0NUdtw0Ao78qIokxKSFMF?quantity=1&redirect_url=https://www.quantamesh.store%2Forder%3Ftab%3Dhistory";
+                          // Re-construct the checkout URL for retry
+                          const baseUrl = "https://www.quantamesh.store/order";
+                          const successUrl = `${baseUrl}?tab=history`;
+                          const cancelUrl = `${baseUrl}?payment=failed`;
+                          const dodoUrl = `https://checkout.dodopayments.com/buy/pdt_0NUdtw0Ao78qIokxKSFMF?quantity=1&redirect_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
+
+                          sessionStorage.setItem("pendingPayment", "true");
+                          window.location.href = dodoUrl;
                         }}
                         className="gap-2"
                       >
