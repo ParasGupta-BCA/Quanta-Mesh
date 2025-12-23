@@ -9,7 +9,35 @@ interface AnnouncementBarProps {
 
 export function AnnouncementBar({ onDismiss }: AnnouncementBarProps) {
     const [isVisible, setIsVisible] = useState(true);
+    const [timeLeft, setTimeLeft] = useState("");
     const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    useEffect(() => {
+        // Countdown Logic
+        const calculateTimeLeft = () => {
+            const now = new Date();
+            const midnight = new Date(now);
+            midnight.setHours(24, 0, 0, 0);
+            const diff = midnight.getTime() - now.getTime();
+
+            if (diff > 0) {
+                const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                const minutes = Math.floor((diff / 1000 / 60) % 60);
+                const seconds = Math.floor((diff / 1000) % 60);
+                return `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`;
+            } else {
+                return "00h 00m 00s";
+            }
+        };
+
+        setTimeLeft(calculateTimeLeft());
+
+        const timer = setInterval(() => {
+            setTimeLeft(calculateTimeLeft());
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, []);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -121,8 +149,10 @@ export function AnnouncementBar({ onDismiss }: AnnouncementBarProps) {
 
                             <div className="flex items-center gap-2 group">
                                 {/* Mobile Text (< sm) */}
-                                <span className="sm:hidden text-center truncate max-w-[180px] xs:max-w-none">
-                                    <span className="text-yellow-200 font-bold">30% OFF</span> App Publishing
+                                <span className="sm:hidden flex items-center gap-2 text-center truncate max-w-[200px] xs:max-w-none">
+                                    <span className="text-yellow-200 font-bold">30% OFF</span>
+                                    <span className="w-px h-3 bg-white/30 mx-0.5"></span>
+                                    <span className="font-mono text-xs opacity-90 tracking-tight">{timeLeft}</span>
                                 </span>
 
                                 {/* Desktop/Tablet Text (>= sm) */}
