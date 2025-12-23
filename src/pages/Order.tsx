@@ -623,10 +623,10 @@ export default function Order() {
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter className="flex flex-col sm:flex-row sm:justify-center gap-3 mt-6 w-full">
-                                <AlertDialogCancel className="w-full sm:w-auto min-w-[100px] bg-white/5 hover:bg-white/10 border border-white/10 text-white">Cancel</AlertDialogCancel>
+                                <AlertDialogCancel className="w-full sm:w-auto min-w-[100px] bg-white/5 hover:bg-white/10 border border-white/10 text-white focus-visible:ring-white/20 focus-visible:ring-offset-0">Cancel</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={handleReset}
-                                  className="w-full sm:w-auto min-w-[120px] bg-red-500 hover:bg-red-600 text-white shadow-[0_0_20px_rgba(239,68,68,0.4)] border-0"
+                                  className="w-full sm:w-auto min-w-[120px] bg-red-500 hover:bg-red-600 text-white shadow-[0_0_20px_rgba(239,68,68,0.4)] hover:shadow-[0_0_25px_rgba(239,68,68,0.6)] border-0 focus-visible:ring-red-500 focus-visible:ring-offset-0"
                                 >
                                   Reset Everything
                                 </AlertDialogAction>
