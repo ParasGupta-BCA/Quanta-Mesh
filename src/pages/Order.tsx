@@ -433,25 +433,28 @@ export default function Order() {
                     {step === 1 && (
                       /* Step 1: App Details */
                       <div className="glass-card rounded-2xl p-6 md:p-8 space-y-6 animate-fade-in">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                        <div className="flex items-center justify-between gap-4 mb-6">
                           <h2 className="text-xl font-bold">App Details</h2>
-                          <div className="flex items-center gap-4 text-sm">
+                          <div className="flex items-center gap-3">
                             <div className="flex items-center gap-1.5 text-muted-foreground">
                               {formData.appName ? (
                                 <>
                                   <CheckCircle size={14} className="text-primary" />
-                                  <span className="text-xs">Auto-saved</span>
+                                  <span className="text-xs hidden sm:inline">Auto-saved</span>
                                 </>
                               ) : null}
                             </div>
-                            <div className="flex items-center gap-2 bg-secondary/50 px-3 py-1 rounded-full border border-border/50">
-                              <div className="w-16 h-1.5 bg-secondary rounded-full overflow-hidden">
-                                <div
-                                  className="h-full bg-primary transition-all duration-500"
-                                  style={{ width: `${progress}%` }}
-                                />
+                            <div className="flex items-center gap-2">
+                              {/* Mobile formatted progress */}
+                              <div className="flex items-center gap-2 py-1 px-2 rounded-full bg-secondary/30 border border-border/30">
+                                <div className="w-12 sm:w-16 h-1.5 bg-secondary rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full bg-primary transition-all duration-500"
+                                    style={{ width: `${progress}%` }}
+                                  />
+                                </div>
+                                <span className="text-xs font-medium text-muted-foreground">{Math.round(progress)}%</span>
                               </div>
-                              <span className="text-xs font-medium text-muted-foreground">{Math.round(progress)}%</span>
                             </div>
                           </div>
                         </div>
@@ -581,10 +584,10 @@ export default function Order() {
                     {step === 2 && (
                       /* Step 2: Files & Payment */
                       <div className="glass-card rounded-2xl p-6 md:p-8 space-y-6 animate-fade-in">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                          <h2 className="text-xl font-bold">Upload Files & Checkout</h2>
-                          <div className="flex items-center gap-2 bg-secondary/50 px-3 py-1 rounded-full border border-border/50">
-                            <div className="w-16 h-1.5 bg-secondary rounded-full overflow-hidden">
+                        <div className="flex items-center justify-between gap-4 mb-6">
+                          <h2 className="text-xl font-bold">Upload Files</h2>
+                          <div className="flex items-center gap-2 py-1 px-2 rounded-full bg-secondary/30 border border-border/30">
+                            <div className="w-12 sm:w-16 h-1.5 bg-secondary rounded-full overflow-hidden">
                               <div
                                 className="h-full bg-primary transition-all duration-500"
                                 style={{ width: `${progress}%` }}
