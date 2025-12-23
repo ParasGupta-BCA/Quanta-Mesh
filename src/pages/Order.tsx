@@ -280,7 +280,7 @@ export default function Order() {
       const successUrl = `${baseUrl}?tab=history`;
       const cancelUrl = `${baseUrl}?payment=failed`;
 
-      const dodoUrl = `https://test.checkout.dodopayments.com/buy/pdt_0NUgvQOaRN2MCsbQ0mmZ8?quantity=1&redirect_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
+      const dodoUrl = `https://checkout.dodopayments.com/buy/pdt_0NUdtw0Ao78qIokxKSFMF?quantity=1&redirect_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
 
       // Set session flag to detect "Back" button usage
       sessionStorage.setItem("pendingPayment", "true");
@@ -492,7 +492,7 @@ export default function Order() {
                           const baseUrl = "https://www.quantamesh.store/order";
                           const successUrl = `${baseUrl}?tab=history`;
                           const cancelUrl = `${baseUrl}?payment=failed`;
-                          const dodoUrl = `https://test.checkout.dodopayments.com/buy/pdt_0NUgvQOaRN2MCsbQ0mmZ8?quantity=1&redirect_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
+                          const dodoUrl = `https://checkout.dodopayments.com/buy/pdt_0NUdtw0Ao78qIokxKSFMF?quantity=1&redirect_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
 
                           sessionStorage.setItem("pendingPayment", "true");
                           window.location.href = dodoUrl;
