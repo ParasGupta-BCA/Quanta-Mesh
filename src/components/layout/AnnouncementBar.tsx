@@ -18,21 +18,31 @@ export function AnnouncementBar({ onDismiss }: AnnouncementBarProps) {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        canvas.width = window.innerWidth;
-        canvas.height = canvas.offsetHeight;
+        const updateCanvasSize = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = canvas.parentElement?.offsetHeight || 48; // Fallback to 48px if 0
+        };
+
+        // Initial set
+        updateCanvasSize();
 
         const particles: { x: number; y: number; radius: number; speed: number; opacity: number }[] = [];
         const particleCount = 50;
 
-        for (let i = 0; i < particleCount; i++) {
-            particles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                radius: Math.random() * 2 + 1,
-                speed: Math.random() * 1 + 0.5,
-                opacity: Math.random() * 0.5 + 0.3
-            });
-        }
+        const initParticles = () => {
+            particles.length = 0;
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 2 + 1,
+                    speed: Math.random() * 1 + 0.5,
+                    opacity: Math.random() * 0.5 + 0.3
+                });
+            }
+        };
+
+        initParticles();
 
         function animate() {
             if (!ctx || !canvas) return;
@@ -45,7 +55,7 @@ export function AnnouncementBar({ onDismiss }: AnnouncementBarProps) {
                 ctx.fill();
 
                 p.y += p.speed;
-                p.x += Math.sin(p.y * 0.05) * 0.5; // Slight sway
+                p.x += Math.sin(p.y * 0.05) * 0.5;
 
                 if (p.y > canvas.height) {
                     p.y = -5;
@@ -59,11 +69,24 @@ export function AnnouncementBar({ onDismiss }: AnnouncementBarProps) {
         animate();
 
         const handleResize = () => {
-            canvas.width = window.innerWidth;
+            updateCanvasSize();
+            // Re-distribute particles if needed, or let them fall naturally
         };
 
         window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+
+        // Also observe the element for size changes (animation completion)
+        const resizeObserver = new ResizeObserver(() => {
+            updateCanvasSize();
+        });
+        if (canvas.parentElement) {
+            resizeObserver.observe(canvas.parentElement);
+        }
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            resizeObserver.disconnect();
+        };
     }, []);
 
     const handleDismiss = () => {
@@ -81,8 +104,8 @@ export function AnnouncementBar({ onDismiss }: AnnouncementBarProps) {
                     transition={{ duration: 0.3 }}
                     className="relative w-full bg-violet-600/30 backdrop-blur-xl border-b border-white/10 shadow-lg text-white overflow-hidden z-[60]"
                 >
-                    <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none opacity-60" />
                     <div className="absolute inset-0 bg-gradient-to-r from-violet-600/40 via-purple-600/40 to-indigo-600/40 pointer-events-none"></div>
+                    <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none opacity-80" />
 
                     <div className="container mx-auto px-4 h-10 md:h-12 flex items-center justify-between relative z-10">
                         <div className="flex-1 flex items-center justify-center gap-2 md:gap-3 text-[11px] md:text-sm font-medium tracking-wide">
