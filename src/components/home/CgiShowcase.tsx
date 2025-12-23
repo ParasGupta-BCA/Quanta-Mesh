@@ -41,7 +41,19 @@ export function CgiShowcase() {
 
 function VideoCard({ src }: { src: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+
+  const handleMouseEnter = () => {
+    videoRef.current?.play();
+    setIsPlaying(true);
+  };
+
+  const handleMouseLeave = () => {
+    videoRef.current?.pause();
+    if (videoRef.current) videoRef.current.currentTime = 0;
+    setIsPlaying(false);
+  };
 
   const toggleMute = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -54,6 +66,8 @@ function VideoCard({ src }: { src: string }) {
   return (
     <div
       className="relative group rounded-2xl overflow-hidden aspect-[9/16] bg-zinc-900 border border-white/10 shadow-2xl transition-all duration-500 hover:scale-[1.02] hover:border-purple-500/50 hover:shadow-purple-500/20"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <video
         ref={videoRef}
@@ -62,13 +76,25 @@ function VideoCard({ src }: { src: string }) {
         loop
         muted={isMuted}
         playsInline
-        autoPlay
       />
 
-      {/* Sound Control */}
+      {/* Overlay - Always visible initially, fades out on play */}
+      <div className={cn(
+        "absolute inset-0 bg-black/40 flex items-center justify-center transition-opacity duration-300",
+        isPlaying ? "opacity-0 pointer-events-none" : "opacity-100"
+      )}>
+        <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
+          <Play className="w-5 h-5 text-white fill-white" />
+        </div>
+      </div>
+
+      {/* Sound Control - Visible only when playing */}
       <button
         onClick={toggleMute}
-        className="absolute bottom-3 right-3 p-2 rounded-full bg-black/50 backdrop-blur-md text-white border border-white/10 hover:bg-black/70 transition-all z-20"
+        className={cn(
+          "absolute bottom-4 right-4 p-2 rounded-full bg-black/50 backdrop-blur-md text-white border border-white/10 transition-opacity duration-300 hover:bg-black/70",
+          isPlaying ? "opacity-100" : "opacity-0"
+        )}
       >
         {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
       </button>
