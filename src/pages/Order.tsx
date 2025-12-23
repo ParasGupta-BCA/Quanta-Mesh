@@ -29,6 +29,17 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const orderSchema = z.object({
   appName: z.string().trim().min(1, "App name is required").max(50, "App name must be less than 50 characters"),
@@ -246,6 +257,32 @@ export default function Order() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleReset = () => {
+    setFormData({
+      appName: "",
+      shortDescription: "",
+      fullDescription: "",
+      category: "",
+      email: "",
+      name: "",
+      privacyPolicyUrl: "",
+      supportUrl: "",
+    });
+    setFiles({
+      apk: null,
+      icon: null,
+      featureGraphic: null,
+      screenshots: []
+    });
+    setErrors({});
+    localStorage.removeItem("orderFormData");
+
+    toast({
+      title: "Reset Successful",
+      description: "Form has been cleared.",
+    });
   };
 
   const isStep1Valid = formData.appName && formData.shortDescription && formData.email && formData.name;
@@ -567,7 +604,29 @@ export default function Order() {
                           </div>
                         </div>
 
-                        <div className="flex justify-end pt-4">
+                        <div className="flex justify-between pt-4">
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button type="button" variant="ghost" className="text-muted-foreground hover:text-destructive">
+                                Reset Form
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Reset Form?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This will clear all your entries. Auto-saved data will also be deleted. This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleReset} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                  Reset
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+
                           <Button
                             type="button"
                             variant="gradient"
