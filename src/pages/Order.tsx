@@ -28,6 +28,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Progress } from "@/components/ui/progress";
 
 const orderSchema = z.object({
   appName: z.string().trim().min(1, "App name is required").max(50, "App name must be less than 50 characters"),
@@ -143,6 +144,40 @@ export default function Order() {
     }
   };
 
+  // Auto-save form data
+  useEffect(() => {
+    const savedData = localStorage.getItem("orderFormData");
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        setFormData(prev => ({ ...prev, ...parsed }));
+      } catch (e) {
+        console.error("Failed to parse saved form data", e);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("orderFormData", JSON.stringify(formData));
+  }, [formData]);
+
+  // Calculate progress
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    let completed = 0;
+    const total = 6; // name, email, appName, shortDescription, apk, icon
+
+    if (formData.name) completed++;
+    if (formData.email) completed++;
+    if (formData.appName) completed++;
+    if (formData.shortDescription) completed++;
+    if (files.apk) completed++;
+    if (files.icon) completed++;
+
+    setProgress((completed / total) * 100);
+  }, [formData, files]);
+
   const handleScreenshotsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFiles(prev => ({ ...prev, screenshots: Array.from(e.target.files!) }));
@@ -193,6 +228,8 @@ export default function Order() {
       });
 
       if (error) throw error;
+
+      localStorage.removeItem("orderFormData");
 
       toast({
         title: "Order Submitted!",
@@ -357,6 +394,16 @@ export default function Order() {
                     </div>
                   ))}
                 </div>
+                {/* Progress Bar */}
+                <div className="mb-8">
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-muted-foreground">Order Completion</span>
+                    <span className="font-medium text-primary">{Math.round(progress)}%</span>
+                  </div>
+                  <Progress value={progress} className="h-2" />
+                </div>
+
+                {/* Progress Steps */}
 
                 {step === 3 ? (
                   /* Confirmation */
