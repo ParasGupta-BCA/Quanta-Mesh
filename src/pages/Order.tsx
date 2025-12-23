@@ -622,11 +622,11 @@ export default function Order() {
                                   This will clear all your entries. Auto-saved data will also be deleted. This action cannot be undone.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
-                              <AlertDialogFooter className="flex flex-col sm:flex-row gap-2 mt-4 w-full">
-                                <AlertDialogCancel className="w-full sm:w-auto bg-secondary/50 hover:bg-secondary/80 border-0">Cancel</AlertDialogCancel>
+                              <AlertDialogFooter className="flex flex-col sm:flex-row sm:justify-center gap-3 mt-6 w-full">
+                                <AlertDialogCancel className="w-full sm:w-auto min-w-[100px] bg-white/5 hover:bg-white/10 border border-white/10 text-white">Cancel</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={handleReset}
-                                  className="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)] border-0"
+                                  className="w-full sm:w-auto min-w-[120px] bg-red-500 hover:bg-red-600 text-white shadow-[0_0_20px_rgba(239,68,68,0.4)] border-0"
                                 >
                                   Reset Everything
                                 </AlertDialogAction>
