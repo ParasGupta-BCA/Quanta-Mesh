@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,6 +84,8 @@ const includedFeatures = [
 export default function Order() {
   const { toast } = useToast();
   const { user, loading } = useAuth();
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState("new");
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orders, setOrders] = useState<OrderItem[]>([]);
@@ -120,6 +122,15 @@ export default function Order() {
       fetchOrders();
     }
   }, [user]);
+
+  // Check for tab parameter in URL
+  useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    if (tabParam === "history") {
+      setActiveTab("history");
+      if (user) fetchOrders();
+    }
+  }, [searchParams, user]);
 
   const fetchOrders = async () => {
     setLoadingOrders(true);
@@ -248,7 +259,8 @@ export default function Order() {
         description: "Redirecting to payment...",
       });
 
-      window.location.href = "https://checkout.dodopayments.com/buy/pdt_0NUdtw0Ao78qIokxKSFMF?quantity=1&redirect_url=https://www.quantamesh.store%2Forder";
+      // Redirect with tab query param
+      window.location.href = "https://checkout.dodopayments.com/buy/pdt_0NUdtw0Ao78qIokxKSFMF?quantity=1&redirect_url=https://www.quantamesh.store%2Forder%3Ftab%3Dhistory";
     } catch (error: any) {
       toast({
         title: "Error",
@@ -385,7 +397,7 @@ export default function Order() {
               </p>
             </div>
 
-            <Tabs defaultValue="new" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <div className="flex justify-center mb-8">
                 <TabsList className="grid w-full max-w-md grid-cols-2">
                   <TabsTrigger value="new">New Order</TabsTrigger>
