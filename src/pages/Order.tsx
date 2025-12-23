@@ -514,117 +514,304 @@ export default function Order() {
                     <span className={`font-semibold ${serviceType === 'cgi' ? 'text-foreground' : 'text-muted-foreground'}`}>CGI Video Ads</span>
                   </div>
                 </div>
-                {/* Progress Steps */}
-                <div className="flex items-center justify-center gap-4 mb-8">
-                  {[1, 2, 3].map((s) => (
-                    <div key={s} className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${step >= s
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary text-muted-foreground"
-                        }`}>
-                        {step > s ? <CheckCircle size={20} /> : s}
-                      </div>
-                      {s < 3 && <div className={`w-12 h-0.5 ${step > s ? "bg-primary" : "bg-secondary"}`} />}
-                    </div>
-                  ))}
-                </div>
 
-                {/* Progress Steps */}
-
-                {showFailedView ? (
-                  /* Payment Failed View */
-                  <div className="glass-card rounded-2xl p-8 text-center animate-in fade-in zoom-in duration-300 border-red-500/20 bg-red-500/5">
-                    <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-6">
-                      <XCircle size={40} className="text-red-500" />
+                {serviceType === 'cgi' ? (
+                  /* CGI Custom Flow */
+                  <div className="glass-card rounded-2xl p-8 text-center animate-fade-in border-purple-500/20 bg-purple-500/5">
+                    <div className="w-20 h-20 rounded-full bg-purple-500/10 flex items-center justify-center mx-auto mb-6">
+                      <MessageCircle size={40} className="text-purple-400" />
                     </div>
-                    <h2 className="text-2xl font-bold mb-4 text-red-500">Payment Failed</h2>
-                    <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-                      It looks like you didn't complete your payment. Don't worry, if you submitted the order, it's saved as "Pending" in your order history.
+                    <h2 className="text-2xl font-bold mb-4">Let's Talk About Your Vision</h2>
+                    <p className="text-muted-foreground mb-8 text-lg max-w-xl mx-auto">
+                      Pricing for CGI Video Ads varies based on your specific requirements and complexity.
+                      Please chat with us to discuss the details and place your order directly.
                     </p>
 
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          setShowFailedView(false);
-                          // Re-construct the checkout URL for retry
-                          const baseUrl = "https://www.quantamesh.store/order";
-                          const successUrl = `${baseUrl}?tab=history`;
-                          const cancelUrl = `${baseUrl}?payment=failed`;
-                          const dodoUrl = `https://checkout.dodopayments.com/buy/pdt_0NUdtw0Ao78qIokxKSFMF?quantity=1&redirect_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
-
-                          sessionStorage.setItem("pendingPayment", "true");
-                          window.location.href = dodoUrl;
-                        }}
-                        className="gap-2"
-                      >
-                        <RefreshCw size={16} />
-                        Retry Payment
-                      </Button>
-                      <Button
-                        variant="default"
-                        onClick={() => {
-                          setShowFailedView(false);
-                          setActiveTab("history");
-                          fetchOrders();
-                        }}
-                      >
-                        Go to My Orders
-                      </Button>
-                    </div>
-                  </div>
-                ) : step === 3 ? (
-                  /* Confirmation */
-                  <div className="glass-card rounded-2xl p-8 text-center">
-                    <div className="w-20 h-20 rounded-full bg-success/20 flex items-center justify-center mx-auto mb-6">
-                      <CheckCircle size={40} className="text-success" />
-                    </div>
-                    <h2 className="text-2xl font-bold mb-4">{serviceType === 'publishing' ? 'Order Received!' : 'Quote Request Received!'}</h2>
-                    <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                      {serviceType === 'publishing'
-                        ? <>Thank you for your order! We've received your submission and will contact you at <strong>{formData.email}</strong> within 2-4 hours with payment instructions.</>
-                        : <>Thank you for your interest! We've received your details. Our team will review your request and contact you at <strong>{formData.email}</strong> shortly to discuss pricing and next steps.</>
-                      }
-                    </p>
-                    <div className="glass-card rounded-xl p-6 text-left mb-8">
-                      <h3 className="font-semibold mb-4">What happens next?</h3>
-                      <ol className="space-y-3 text-sm text-muted-foreground">
-                        <li className="flex items-start gap-3">
-                          <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 text-primary text-xs font-bold">1</span>
-                          <span>{serviceType === 'publishing' ? "We'll review your submission and send a payment link" : "We'll review your concept and assets"}</span>
-                        </li>
-                        <li className="flex items-start gap-3">
-                          <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 text-primary text-xs font-bold">2</span>
-                          <span>{serviceType === 'publishing' ? "After payment, we'll process your app within 24-48 hours" : "We'll schedule a chat to discuss the vision and pricing"}</span>
-                        </li>
-                        <li className="flex items-start gap-3">
-                          <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 text-primary text-xs font-bold">3</span>
-                          <span>{serviceType === 'publishing' ? "You'll receive confirmation once submitted to Google Play" : "Once approved, production begins immediately"}</span>
-                        </li>
-                      </ol>
-                    </div>
-                    <Button variant="gradient" asChild>
-                      <a href="/">Back to Home</a>
+                    <Button asChild size="lg" className="bg-purple-600 hover:bg-purple-700 text-white shadow-[0_0_20px_rgba(147,51,234,0.3)] hover:shadow-[0_0_30px_rgba(147,51,234,0.5)] transition-all duration-300 gap-2">
+                      <Link to="/chat">
+                        <MessageCircle size={20} />
+                        Chat with Us for Details
+                      </Link>
                     </Button>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit}>
-                    {step === 1 && (
-                      /* Step 1: App Details */
-                      <div className="glass-card rounded-2xl p-6 md:p-8 space-y-6 animate-fade-in">
-                        <div className="flex items-center justify-between gap-4 mb-6">
-                          <h2 className="text-xl font-bold">App Details</h2>
-                          <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-1.5 text-muted-foreground">
-                              {formData.appName ? (
-                                <>
-                                  <CheckCircle size={14} className="text-primary" />
-                                  <span className="text-xs hidden sm:inline">Auto-saved</span>
-                                </>
-                              ) : null}
+                  <>
+                    {/* Progress Steps */}
+                    <div className="flex items-center justify-center gap-4 mb-8">
+                      {[1, 2, 3].map((s) => (
+                        <div key={s} className="flex items-center gap-4">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${step >= s
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-secondary text-muted-foreground"
+                            }`}>
+                            {step > s ? <CheckCircle size={20} /> : s}
+                          </div>
+                          {s < 3 && <div className={`w-12 h-0.5 ${step > s ? "bg-primary" : "bg-secondary"}`} />}
+                        </div>
+                      ))}
+                    </div>
+
+                    {showFailedView ? (
+                      /* Payment Failed View */
+                      <div className="glass-card rounded-2xl p-8 text-center animate-in fade-in zoom-in duration-300 border-red-500/20 bg-red-500/5">
+                        <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-6">
+                          <XCircle size={40} className="text-red-500" />
+                        </div>
+                        <h2 className="text-2xl font-bold mb-4 text-red-500">Payment Failed</h2>
+                        <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+                          It looks like you didn't complete your payment. Don't worry, if you submitted the order, it's saved as "Pending" in your order history.
+                        </p>
+
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setShowFailedView(false);
+                              // Re-construct the checkout URL for retry
+                              const baseUrl = "https://www.quantamesh.store/order";
+                              const successUrl = `${baseUrl}?tab=history`;
+                              const cancelUrl = `${baseUrl}?payment=failed`;
+                              const dodoUrl = `https://checkout.dodopayments.com/buy/pdt_0NUdtw0Ao78qIokxKSFMF?quantity=1&redirect_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
+
+                              sessionStorage.setItem("pendingPayment", "true");
+                              window.location.href = dodoUrl;
+                            }}
+                            className="gap-2"
+                          >
+                            <RefreshCw size={16} />
+                            Retry Payment
+                          </Button>
+                          <Button
+                            variant="default"
+                            onClick={() => {
+                              setShowFailedView(false);
+                              setActiveTab("history");
+                              fetchOrders();
+                            }}
+                          >
+                            Go to My Orders
+                          </Button>
+                        </div>
+                      </div>
+                    ) : step === 3 ? (
+                      /* Confirmation */
+                      <div className="glass-card rounded-2xl p-8 text-center">
+                        <div className="w-20 h-20 rounded-full bg-success/20 flex items-center justify-center mx-auto mb-6">
+                          <CheckCircle size={40} className="text-success" />
+                        </div>
+                        <h2 className="text-2xl font-bold mb-4">Order Received!</h2>
+                        <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                          Thank you for your order! We've received your submission and will contact you at <strong>{formData.email}</strong> within 2-4 hours with payment instructions.
+                        </p>
+                        <div className="glass-card rounded-xl p-6 text-left mb-8">
+                          <h3 className="font-semibold mb-4">What happens next?</h3>
+                          <ol className="space-y-3 text-sm text-muted-foreground">
+                            <li className="flex items-start gap-3">
+                              <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 text-primary text-xs font-bold">1</span>
+                              <span>We'll review your submission and send a payment link</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                              <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 text-primary text-xs font-bold">2</span>
+                              <span>After payment, we'll process your app within 24-48 hours</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                              <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 text-primary text-xs font-bold">3</span>
+                              <span>You'll receive confirmation once submitted to Google Play</span>
+                            </li>
+                          </ol>
+                        </div>
+                        <Button variant="gradient" asChild>
+                          <a href="/">Back to Home</a>
+                        </Button>
+                      </div>
+                    ) : (
+                      <form onSubmit={handleSubmit}>
+                        {step === 1 && (
+                          /* Step 1: App Details */
+                          <div className="glass-card rounded-2xl p-6 md:p-8 space-y-6 animate-fade-in">
+                            <div className="flex items-center justify-between gap-4 mb-6">
+                              <h2 className="text-xl font-bold">App Details</h2>
+                              <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-1.5 text-muted-foreground">
+                                  {formData.appName ? (
+                                    <>
+                                      <CheckCircle size={14} className="text-primary" />
+                                      <span className="text-xs hidden sm:inline">Auto-saved</span>
+                                    </>
+                                  ) : null}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {/* Mobile formatted progress */}
+                                  <div className="flex items-center gap-2 py-1 px-2 rounded-full bg-secondary/30 border border-border/30">
+                                    <div className="w-12 sm:w-16 h-1.5 bg-secondary rounded-full overflow-hidden">
+                                      <div
+                                        className="h-full bg-primary transition-all duration-500"
+                                        style={{ width: `${progress}%` }}
+                                      />
+                                    </div>
+                                    <span className="text-xs font-medium text-muted-foreground">{Math.round(progress)}%</span>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              {/* Mobile formatted progress */}
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div className="space-y-2">
+                                <Label htmlFor="name">Your Name *</Label>
+                                <Input
+                                  id="name"
+                                  name="name"
+                                  value={formData.name}
+                                  onChange={handleInputChange}
+                                  placeholder="John Doe"
+                                  maxLength={100}
+                                  required
+                                />
+                                {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="email">Email Address *</Label>
+                                <Input
+                                  id="email"
+                                  name="email"
+                                  type="email"
+                                  value={formData.email}
+                                  onChange={handleInputChange}
+                                  placeholder="john@example.com"
+                                  maxLength={255}
+                                  required
+                                />
+                                {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="appName">App Name *</Label>
+                              <Input
+                                id="appName"
+                                name="appName"
+                                value={formData.appName}
+                                onChange={handleInputChange}
+                                placeholder="My Awesome App"
+                                maxLength={50}
+                                required
+                              />
+                              {errors.appName && <p className="text-xs text-destructive">{errors.appName}</p>}
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="shortDescription">Short Description * (max 80 chars)</Label>
+                              <Input
+                                id="shortDescription"
+                                name="shortDescription"
+                                value={formData.shortDescription}
+                                onChange={handleInputChange}
+                                placeholder="A brief description of your app"
+                                maxLength={80}
+                                required
+                              />
+                              <p className="text-xs text-muted-foreground">{formData.shortDescription.length}/80</p>
+                              {errors.shortDescription && <p className="text-xs text-destructive">{errors.shortDescription}</p>}
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="fullDescription">Full Description</Label>
+                              <Textarea
+                                id="fullDescription"
+                                name="fullDescription"
+                                value={formData.fullDescription}
+                                onChange={handleInputChange}
+                                placeholder="Detailed description of your app features..."
+                                rows={5}
+                                maxLength={4000}
+                              />
+                              {errors.fullDescription && <p className="text-xs text-destructive">{errors.fullDescription}</p>}
+                            </div>
+
+                            <>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                  <Label htmlFor="category">Category</Label>
+                                  <select
+                                    id="category"
+                                    name="category"
+                                    value={formData.category}
+                                    onChange={handleInputChange}
+                                    className="w-full h-10 px-3 rounded-lg bg-secondary border border-border text-foreground"
+                                  >
+                                    <option value="">Select a category</option>
+                                    <option value="games">Games</option>
+                                    <option value="business">Business</option>
+                                    <option value="education">Education</option>
+                                    <option value="entertainment">Entertainment</option>
+                                    <option value="lifestyle">Lifestyle</option>
+                                    <option value="productivity">Productivity</option>
+                                    <option value="tools">Tools</option>
+                                    <option value="other">Other</option>
+                                  </select>
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="privacyPolicyUrl">Privacy Policy URL</Label>
+                                  <Input
+                                    id="privacyPolicyUrl"
+                                    name="privacyPolicyUrl"
+                                    value={formData.privacyPolicyUrl}
+                                    onChange={handleInputChange}
+                                    placeholder="https://yoursite.com/privacy"
+                                    maxLength={500}
+                                  />
+                                  {errors.privacyPolicyUrl && <p className="text-xs text-destructive">{errors.privacyPolicyUrl}</p>}
+                                </div>
+                              </div>
+                            </>
+
+                            <div className="flex justify-between pt-4">
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button type="button" variant="ghost" className="text-muted-foreground hover:text-destructive">
+                                    Reset Form
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent className="border border-white/10 bg-zinc-950/95 backdrop-blur-xl shadow-2xl">
+                                  <AlertDialogHeader className="flex flex-col items-center text-center">
+                                    <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mb-2">
+                                      <AlertTriangle className="h-6 w-6 text-red-500" />
+                                    </div>
+                                    <AlertDialogTitle className="text-xl">Reset Form?</AlertDialogTitle>
+                                    <AlertDialogDescription className="text-center">
+                                      This will clear all your entries. Auto-saved data will also be deleted. This action cannot be undone.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter className="flex flex-col sm:flex-row sm:justify-center gap-3 mt-6 w-full">
+                                    <AlertDialogCancel className="w-full sm:w-auto min-w-[100px] bg-white/5 hover:bg-white/10 border border-white/10 text-white focus-visible:ring-white/20 focus-visible:ring-offset-0">Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={handleReset}
+                                      className="w-full sm:w-auto min-w-[120px] bg-red-500 hover:bg-red-600 text-white shadow-[0_0_20px_rgba(239,68,68,0.4)] hover:shadow-[0_0_25px_rgba(239,68,68,0.6)] border-0 focus-visible:ring-red-500 focus-visible:ring-offset-0"
+                                    >
+                                      Reset Everything
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+
+                              <Button
+                                type="button"
+                                variant="gradient"
+                                onClick={() => setStep(2)}
+                                disabled={!isStep1Valid}
+                              >
+                                Continue
+                                <ArrowRight className="ml-2" size={18} />
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+
+                        {step === 2 && (
+                          /* Step 2: Files & Payment */
+                          <div className="glass-card rounded-2xl p-6 md:p-8 space-y-6 animate-fade-in">
+                            <div className="flex items-center justify-between gap-4 mb-6">
+                              <h2 className="text-xl font-bold">Upload Files</h2>
                               <div className="flex items-center gap-2 py-1 px-2 rounded-full bg-secondary/30 border border-border/30">
                                 <div className="w-12 sm:w-16 h-1.5 bg-secondary rounded-full overflow-hidden">
                                   <div
@@ -635,363 +822,193 @@ export default function Order() {
                                 <span className="text-xs font-medium text-muted-foreground">{Math.round(progress)}%</span>
                               </div>
                             </div>
-                          </div>
-                        </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div className="space-y-2">
-                            <Label htmlFor="name">Your Name *</Label>
-                            <Input
-                              id="name"
-                              name="name"
-                              value={formData.name}
-                              onChange={handleInputChange}
-                              placeholder="John Doe"
-                              maxLength={100}
-                              required
-                            />
-                            {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="email">Email Address *</Label>
-                            <Input
-                              id="email"
-                              name="email"
-                              type="email"
-                              value={formData.email}
-                              onChange={handleInputChange}
-                              placeholder="john@example.com"
-                              maxLength={255}
-                              required
-                            />
-                            {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="appName">{serviceType === 'publishing' ? 'App Name *' : 'Product / Project Name *'}</Label>
-                          <Input
-                            id="appName"
-                            name="appName"
-                            value={formData.appName}
-                            onChange={handleInputChange}
-                            placeholder={serviceType === 'publishing' ? "My Awesome App" : "Brand or Product Name"}
-                            maxLength={50}
-                            required
-                          />
-                          {errors.appName && <p className="text-xs text-destructive">{errors.appName}</p>}
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="shortDescription">{serviceType === 'publishing' ? 'Short Description * (max 80 chars)' : 'Concept Summary * (max 80 chars)'}</Label>
-                          <Input
-                            id="shortDescription"
-                            name="shortDescription"
-                            value={formData.shortDescription}
-                            onChange={handleInputChange}
-                            placeholder={serviceType === 'publishing' ? "A brief description of your app" : "Brief idea or tagline"}
-                            maxLength={80}
-                            required
-                          />
-                          <p className="text-xs text-muted-foreground">{formData.shortDescription.length}/80</p>
-                          {errors.shortDescription && <p className="text-xs text-destructive">{errors.shortDescription}</p>}
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="fullDescription">{serviceType === 'publishing' ? 'Full Description' : 'Detailed Vision / Script'}</Label>
-                          <Textarea
-                            id="fullDescription"
-                            name="fullDescription"
-                            value={formData.fullDescription}
-                            onChange={handleInputChange}
-                            placeholder={serviceType === 'publishing' ? "Detailed description of your app features..." : "Describe the scene, mood, and reference links..."}
-                            rows={5}
-                            maxLength={4000}
-                          />
-                          {errors.fullDescription && <p className="text-xs text-destructive">{errors.fullDescription}</p>}
-                        </div>
-
-                        {serviceType === 'publishing' && (
-                          <>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                              <div className="space-y-2">
-                                <Label htmlFor="category">Category</Label>
-                                <select
-                                  id="category"
-                                  name="category"
-                                  value={formData.category}
-                                  onChange={handleInputChange}
-                                  className="w-full h-10 px-3 rounded-lg bg-secondary border border-border text-foreground"
-                                >
-                                  <option value="">Select a category</option>
-                                  <option value="games">Games</option>
-                                  <option value="business">Business</option>
-                                  <option value="education">Education</option>
-                                  <option value="entertainment">Entertainment</option>
-                                  <option value="lifestyle">Lifestyle</option>
-                                  <option value="productivity">Productivity</option>
-                                  <option value="tools">Tools</option>
-                                  <option value="other">Other</option>
-                                </select>
-                              </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="privacyPolicyUrl">Privacy Policy URL</Label>
-                                <Input
-                                  id="privacyPolicyUrl"
-                                  name="privacyPolicyUrl"
-                                  value={formData.privacyPolicyUrl}
-                                  onChange={handleInputChange}
-                                  placeholder="https://yoursite.com/privacy"
-                                  maxLength={500}
-                                />
-                                {errors.privacyPolicyUrl && <p className="text-xs text-destructive">{errors.privacyPolicyUrl}</p>}
-                              </div>
-                            </div>
-                          </>
-                        )}
-
-                        <div className="flex justify-between pt-4">
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button type="button" variant="ghost" className="text-muted-foreground hover:text-destructive">
-                                Reset Form
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent className="border border-white/10 bg-zinc-950/95 backdrop-blur-xl shadow-2xl">
-                              <AlertDialogHeader className="flex flex-col items-center text-center">
-                                <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mb-2">
-                                  <AlertTriangle className="h-6 w-6 text-red-500" />
+                            {/* File Uploads */}
+                            <div className="space-y-6">
+                              {serviceType === 'publishing' ? (
+                                <div className="space-y-2">
+                                  <Label>App File (APK/AAB) *</Label>
+                                  <div className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${files.apk ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                                    }`}>
+                                    <input
+                                      type="file"
+                                      accept=".apk,.aab"
+                                      onChange={(e) => handleFileChange('apk', e)}
+                                      className="hidden"
+                                      id="apk-upload"
+                                    />
+                                    <label htmlFor="apk-upload" className="cursor-pointer">
+                                      {files.apk ? (
+                                        <div className="flex items-center justify-center gap-2 text-primary">
+                                          <CheckCircle size={20} />
+                                          <span>{files.apk.name}</span>
+                                        </div>
+                                      ) : (
+                                        <div className="text-muted-foreground">
+                                          <Upload size={32} className="mx-auto mb-2" />
+                                          <p>Click to upload APK or AAB</p>
+                                        </div>
+                                      )}
+                                    </label>
+                                  </div>
                                 </div>
-                                <AlertDialogTitle className="text-xl">Reset Form?</AlertDialogTitle>
-                                <AlertDialogDescription className="text-center">
-                                  This will clear all your entries. Auto-saved data will also be deleted. This action cannot be undone.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter className="flex flex-col sm:flex-row sm:justify-center gap-3 mt-6 w-full">
-                                <AlertDialogCancel className="w-full sm:w-auto min-w-[100px] bg-white/5 hover:bg-white/10 border border-white/10 text-white focus-visible:ring-white/20 focus-visible:ring-offset-0">Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={handleReset}
-                                  className="w-full sm:w-auto min-w-[120px] bg-red-500 hover:bg-red-600 text-white shadow-[0_0_20px_rgba(239,68,68,0.4)] hover:shadow-[0_0_25px_rgba(239,68,68,0.6)] border-0 focus-visible:ring-red-500 focus-visible:ring-offset-0"
-                                >
-                                  Reset Everything
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
+                              ) : null}
 
-                          <Button
-                            type="button"
-                            variant="gradient"
-                            onClick={() => setStep(2)}
-                            disabled={!isStep1Valid}
-                          >
-                            Continue
-                            <ArrowRight className="ml-2" size={18} />
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-
-                    {step === 2 && (
-                      /* Step 2: Files & Payment */
-                      <div className="glass-card rounded-2xl p-6 md:p-8 space-y-6 animate-fade-in">
-                        <div className="flex items-center justify-between gap-4 mb-6">
-                          <h2 className="text-xl font-bold">Upload Files</h2>
-                          <div className="flex items-center gap-2 py-1 px-2 rounded-full bg-secondary/30 border border-border/30">
-                            <div className="w-12 sm:w-16 h-1.5 bg-secondary rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-primary transition-all duration-500"
-                                style={{ width: `${progress}%` }}
-                              />
-                            </div>
-                            <span className="text-xs font-medium text-muted-foreground">{Math.round(progress)}%</span>
-                          </div>
-                        </div>
-
-                        {/* File Uploads */}
-                        <div className="space-y-6">
-                          {serviceType === 'publishing' ? (
-                            <div className="space-y-2">
-                              <Label>App File (APK/AAB) *</Label>
-                              <div className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${files.apk ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
-                                }`}>
-                                <input
-                                  type="file"
-                                  accept=".apk,.aab"
-                                  onChange={(e) => handleFileChange('apk', e)}
-                                  className="hidden"
-                                  id="apk-upload"
-                                />
-                                <label htmlFor="apk-upload" className="cursor-pointer">
-                                  {files.apk ? (
-                                    <div className="flex items-center justify-center gap-2 text-primary">
-                                      <CheckCircle size={20} />
-                                      <span>{files.apk.name}</span>
-                                    </div>
-                                  ) : (
-                                    <div className="text-muted-foreground">
-                                      <Upload size={32} className="mx-auto mb-2" />
-                                      <p>Click to upload APK or AAB</p>
-                                    </div>
-                                  )}
-                                </label>
-                              </div>
-                            </div>
-                          ) : null}
-
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                              <Label>App Icon (512x512 PNG) *</Label>
-                              <div className={`border-2 border-dashed rounded-xl p-4 text-center transition-colors ${files.icon ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
-                                }`}>
-                                <input
-                                  type="file"
-                                  accept="image/png"
-                                  onChange={(e) => handleFileChange('icon', e)}
-                                  className="hidden"
-                                  id="icon-upload"
-                                />
-                                <label htmlFor="icon-upload" className="cursor-pointer text-sm">
-                                  {files.icon ? (
-                                    <span className="text-primary flex items-center justify-center gap-2">
-                                      <CheckCircle size={16} />
-                                      {files.icon.name}
-                                    </span>
-                                  ) : (
-                                    <span className="text-muted-foreground">Upload Icon</span>
-                                  )}
-                                </label>
-                              </div>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label>Feature Graphic (1024x500)</Label>
-                              <div className={`border-2 border-dashed rounded-xl p-4 text-center transition-colors ${files.featureGraphic ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
-                                }`}>
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={(e) => handleFileChange('featureGraphic', e)}
-                                  className="hidden"
-                                  id="feature-upload"
-                                />
-                                <label htmlFor="feature-upload" className="cursor-pointer text-sm">
-                                  {files.featureGraphic ? (
-                                    <span className="text-primary flex items-center justify-center gap-2">
-                                      <CheckCircle size={16} />
-                                      {files.featureGraphic.name}
-                                    </span>
-                                  ) : (
-                                    <span className="text-muted-foreground">Upload Graphic</span>
-                                  )}
-                                </label>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label>Screenshots (2-8 images)</Label>
-                            <div className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${files.screenshots.length > 0 ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
-                              }`}>
-                              <input
-                                type="file"
-                                accept="image/*"
-                                multiple
-                                onChange={handleScreenshotsChange}
-                                className="hidden"
-                                id="screenshots-upload"
-                              />
-                              <label htmlFor="screenshots-upload" className="cursor-pointer">
-                                {files.screenshots.length > 0 ? (
-                                  <div className="text-primary">
-                                    <CheckCircle size={20} className="mx-auto mb-2" />
-                                    <p>{files.screenshots.length} screenshot(s) selected</p>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                  <Label>App Icon (512x512 PNG) *</Label>
+                                  <div className={`border-2 border-dashed rounded-xl p-4 text-center transition-colors ${files.icon ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                                    }`}>
+                                    <input
+                                      type="file"
+                                      accept="image/png"
+                                      onChange={(e) => handleFileChange('icon', e)}
+                                      className="hidden"
+                                      id="icon-upload"
+                                    />
+                                    <label htmlFor="icon-upload" className="cursor-pointer text-sm">
+                                      {files.icon ? (
+                                        <span className="text-primary flex items-center justify-center gap-2">
+                                          <CheckCircle size={16} />
+                                          {files.icon.name}
+                                        </span>
+                                      ) : (
+                                        <span className="text-muted-foreground">Upload Icon</span>
+                                      )}
+                                    </label>
                                   </div>
-                                ) : (
-                                  <div className="text-muted-foreground">
-                                    <Upload size={24} className="mx-auto mb-2" />
-                                    <p>Upload screenshots</p>
-                                  </div>
-                                )}
-                              </label>
-                            </div>
-                          </div>
-                        </div>
+                                </div>
 
-                        {/* Included Features */}
-                        <div className="space-y-4">
-                          <Label>What's Included in the Package</Label>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {includedFeatures.map((feature, index) => (
-                              <div
-                                key={index}
-                                className="flex items-center gap-3 p-4 rounded-xl border border-primary/20 bg-primary/5 cursor-default"
+                                <div className="space-y-2">
+                                  <Label>Feature Graphic (1024x500)</Label>
+                                  <div className={`border-2 border-dashed rounded-xl p-4 text-center transition-colors ${files.featureGraphic ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                                    }`}>
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={(e) => handleFileChange('featureGraphic', e)}
+                                      className="hidden"
+                                      id="feature-upload"
+                                    />
+                                    <label htmlFor="feature-upload" className="cursor-pointer text-sm">
+                                      {files.featureGraphic ? (
+                                        <span className="text-primary flex items-center justify-center gap-2">
+                                          <CheckCircle size={16} />
+                                          {files.featureGraphic.name}
+                                        </span>
+                                      ) : (
+                                        <span className="text-muted-foreground">Upload Graphic</span>
+                                      )}
+                                    </label>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label>Screenshots (2-8 images)</Label>
+                                <div className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${files.screenshots.length > 0 ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                                  }`}>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    onChange={handleScreenshotsChange}
+                                    className="hidden"
+                                    id="screenshots-upload"
+                                  />
+                                  <label htmlFor="screenshots-upload" className="cursor-pointer">
+                                    {files.screenshots.length > 0 ? (
+                                      <div className="text-primary">
+                                        <CheckCircle size={20} className="mx-auto mb-2" />
+                                        <p>{files.screenshots.length} screenshot(s) selected</p>
+                                      </div>
+                                    ) : (
+                                      <div className="text-muted-foreground">
+                                        <Upload size={24} className="mx-auto mb-2" />
+                                        <p>Upload screenshots</p>
+                                      </div>
+                                    )}
+                                  </label>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Included Features */}
+                            <div className="space-y-4">
+                              <Label>What's Included in the Package</Label>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                {includedFeatures.map((feature, index) => (
+                                  <div
+                                    key={index}
+                                    className="flex items-center gap-3 p-4 rounded-xl border border-primary/20 bg-primary/5 cursor-default"
+                                  >
+                                    <div className="h-4 w-4 shrink-0 rounded-full bg-primary flex items-center justify-center">
+                                      <CheckCircle className="h-3 w-3 text-primary-foreground" />
+                                    </div>
+                                    <span className="text-sm font-medium">{feature}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Order Summary */}
+                            <div className="glass-card rounded-xl p-6">
+                              <h3 className="font-semibold mb-4">Order Summary</h3>
+                              <div className="space-y-2 text-sm">
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Base Package</span>
+                                  <span>$25.00</span>
+                                </div>
+                                <div className="text-xs text-primary mt-2">
+                                  + All premium features included
+                                </div>
+                                <div className="border-t border-border pt-2 mt-2 flex justify-between font-bold text-lg">
+                                  <span>Total</span>
+                                  <span className="gradient-text">${totalPrice}.00</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Trust Badges */}
+                            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
+                              <div className="flex items-center gap-2">
+                                <Shield size={18} className="text-primary" />
+                                <span>Secure Payment</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Clock size={18} className="text-primary" />
+                                <span>24-48h Delivery</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <CreditCard size={18} className="text-primary" />
+                                <span>Stripe / PayPal</span>
+                              </div>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setStep(1)}
+                                className="flex-1"
                               >
-                                <div className="h-4 w-4 shrink-0 rounded-full bg-primary flex items-center justify-center">
-                                  <CheckCircle className="h-3 w-3 text-primary-foreground" />
-                                </div>
-                                <span className="text-sm font-medium">{feature}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Order Summary */}
-                        <div className="glass-card rounded-xl p-6">
-                          <h3 className="font-semibold mb-4">Order Summary</h3>
-                          <div className="space-y-2 text-sm">
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Base Package</span>
-                              <span>$25.00</span>
-                            </div>
-                            <div className="text-xs text-primary mt-2">
-                              + All premium features included
-                            </div>
-                            <div className="border-t border-border pt-2 mt-2 flex justify-between font-bold text-lg">
-                              <span>Total</span>
-                              <span className="gradient-text">${totalPrice}.00</span>
+                                Back
+                              </Button>
+                              <Button
+                                type="submit"
+                                variant="hero"
+                                disabled={!isStep2Valid || isSubmitting}
+                                className="flex-1"
+                              >
+                                {isSubmitting ? "Submitting..." : `Submit Order - $${totalPrice}`}
+                              </Button>
                             </div>
                           </div>
-                        </div>
-
-                        {/* Trust Badges */}
-                        <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-2">
-                            <Shield size={18} className="text-primary" />
-                            <span>Secure Payment</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Clock size={18} className="text-primary" />
-                            <span>24-48h Delivery</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <CreditCard size={18} className="text-primary" />
-                            <span>Stripe / PayPal</span>
-                          </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => setStep(1)}
-                            className="flex-1"
-                          >
-                            Back
-                          </Button>
-                          <Button
-                            type="submit"
-                            variant="hero"
-                            disabled={!isStep2Valid || isSubmitting}
-                            className="flex-1"
-                          >
-                            {isSubmitting ? "Submitting..." : `Submit Order - $${totalPrice}`}
-                          </Button>
-                        </div>
-                      </div>
+                        )}
+                      </form>
                     )}
-                  </form>
+                  </>
                 )}
               </TabsContent>
 
