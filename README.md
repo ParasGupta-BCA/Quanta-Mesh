@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="public/apple-touch-icon.png" alt="Quanta-Mesh Logo" width="115" height="115">
+  <img src="public/apple-touch-icon.png" alt="Quanta Mesh Logo" width="115" height="115">
 
   # Quanta Mesh
 
@@ -21,7 +21,7 @@
 
 In the rapidly evolving world of freelancing, direct and unrestricted communication is paramount. Traditional platforms often impose heavy regulations, fees, and communication barriers that stifle the natural flow of collaboration between clients and developers. 
 
-**Quanta-Mesh** was born out of the need to break these barriers. 
+**Quanta Mesh** was born out of the need to break these barriers. 
 
 We created this platform to provide a **streamlined, regulation-free environment** where clients can connect directly with us. Our goal is to ensure:
 - ✅ **Seamless Collaboration** without third-party interference.
@@ -76,8 +76,8 @@ Ensure you have the following installed:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/ParasGupta-BCA/Quanta-Mesh.git
-   cd Quanta-Mesh
+   git clone https://github.com/ParasGupta-BCA/Quanta Mesh.git
+   cd Quanta Mesh
    ```
 
 2. **Install dependencies**
