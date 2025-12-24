@@ -116,4 +116,4 @@ Since this platform is built for direct communication, feel free to reach out!
 **Project URL:** [www.quantamesh.store](https://www.quantamesh.store)
 
 ---
-*Built with ❤️ by [Your Name/Team Name]*
+*Built with ❤️ by Paras Gupta*
