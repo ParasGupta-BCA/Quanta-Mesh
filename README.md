@@ -1,12 +1,8 @@
-<<<<<<< HEAD
 <div align="center">
   <img src="public/apple-touch-icon.png" alt="Quanta-Mesh Logo" width="120" height="120">
 
   # 🌐 Quanta-Mesh
 </div>
-=======
-# Quanta Mesh 🧑🏻‍💻
->>>>>>> 6140930f953f01a05a4884a86242b4adfdef5395
 ### *A Next-Generation Freelancing & Communication Hub*
 
 ![Project Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)
