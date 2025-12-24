@@ -1,4 +1,4 @@
-# 🧑🏻‍💻 Quanta Mesh
+# Quanta Mesh 🧑🏻‍💻
 ### *A Next-Generation Freelancing & Communication Hub*
 
 ![Project Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)
