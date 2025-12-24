@@ -11,6 +11,12 @@ This project is designed for performance, scalability, and ease of customization
 
 ---
 
+## Why Quanta-Mesh?
+
+Nowadays, freelancing websites have so many regulations when communicating with clients. We created this website so that every client can communicate with us directly, without any regulations or restrictions.
+
+---
+
 ## ✨ Features
 
 - Modern and responsive UI
