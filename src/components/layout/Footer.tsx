@@ -63,7 +63,7 @@ export function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link
-                  to="/services#terms"
+                  to="/terms-of-service"
                   className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   Terms of Service
@@ -71,7 +71,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  to="/services#privacy"
+                  to="/privacy-policy"
                   className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   Privacy Policy
@@ -79,7 +79,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  to="/services#refund"
+                  to="/refund-policy"
                   className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   Refund Policy
