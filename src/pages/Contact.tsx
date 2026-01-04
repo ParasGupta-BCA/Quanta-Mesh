@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,8 +16,12 @@ import {
   Send,
   MessageCircle,
   Clock,
-  CheckCircle
+  CheckCircle,
+  ShieldCheck
 } from "lucide-react";
+
+// reCAPTCHA site key from environment
+const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY || "";
 
 const contactSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name must be less than 100 characters"),
@@ -40,6 +44,52 @@ export default function Contact() {
   // Honeypot field for spam protection - bots will fill this, humans won't see it
   const [honeypot, setHoneypot] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
+  const [recaptchaError, setRecaptchaError] = useState<string | null>(null);
+
+  // Load reCAPTCHA script
+  useEffect(() => {
+    if (!RECAPTCHA_SITE_KEY) {
+      console.warn("reCAPTCHA site key not configured");
+      return;
+    }
+
+    // Check if already loaded
+    if (window.grecaptcha) {
+      setRecaptchaLoaded(true);
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`;
+    script.async = true;
+    script.onload = () => {
+      setRecaptchaLoaded(true);
+    };
+    script.onerror = () => {
+      setRecaptchaError("Failed to load security verification");
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      // Cleanup if needed
+    };
+  }, []);
+
+  const executeRecaptcha = useCallback(async (): Promise<string | null> => {
+    if (!RECAPTCHA_SITE_KEY || !window.grecaptcha) {
+      return null;
+    }
+
+    try {
+      await window.grecaptcha.ready(() => {});
+      const token = await window.grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: "contact_submit" });
+      return token;
+    } catch (error) {
+      logError("reCAPTCHA execution", error);
+      return null;
+    }
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -83,6 +133,28 @@ export default function Contact() {
 
     try {
       const validatedData = result.data;
+
+      // Execute reCAPTCHA if available
+      if (RECAPTCHA_SITE_KEY && recaptchaLoaded) {
+        const recaptchaToken = await executeRecaptcha();
+        if (recaptchaToken) {
+          // Verify reCAPTCHA on server
+          const { data: verifyData, error: verifyError } = await supabase.functions.invoke("verify-recaptcha", {
+            body: { token: recaptchaToken }
+          });
+
+          if (verifyError || !verifyData?.success) {
+            toast({
+              title: "Security Check Failed",
+              description: "Please try again or refresh the page.",
+              variant: "destructive"
+            });
+            setIsSubmitting(false);
+            return;
+          }
+        }
+      }
+
       const { error } = await supabase.from('contact_messages').insert({
         user_id: user?.id || null,
         name: validatedData.name,
@@ -293,7 +365,7 @@ export default function Contact() {
                     variant="hero" 
                     size="lg" 
                     className="w-full"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || (RECAPTCHA_SITE_KEY && !recaptchaLoaded)}
                   >
                     {isSubmitting ? (
                       "Sending..."
@@ -304,6 +376,17 @@ export default function Contact() {
                       </>
                     )}
                   </Button>
+
+                  {/* reCAPTCHA badge notice */}
+                  {RECAPTCHA_SITE_KEY && (
+                    <p className="text-xs text-muted-foreground text-center flex items-center justify-center gap-1 mt-2">
+                      <ShieldCheck size={14} />
+                      Protected by reCAPTCHA
+                    </p>
+                  )}
+                  {recaptchaError && (
+                    <p className="text-xs text-warning text-center">{recaptchaError}</p>
+                  )}
                 </form>
               )}
             </div>
@@ -312,4 +395,14 @@ export default function Contact() {
       </section>
     </Layout>
   );
+}
+
+// Add grecaptcha type for TypeScript
+declare global {
+  interface Window {
+    grecaptcha: {
+      ready: (callback: () => void) => Promise<void>;
+      execute: (siteKey: string, options: { action: string }) => Promise<string>;
+    };
+  }
 }
