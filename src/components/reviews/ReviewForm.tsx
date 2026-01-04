@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Star } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Star, Clock } from "lucide-react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { getSafeErrorMessage, logError } from "@/lib/errorMessages";
+import { useRateLimit } from "@/hooks/useRateLimit";
 
 // Zod schema for review validation
 const reviewSchema = z.object({
@@ -34,9 +35,32 @@ export function ReviewForm({ orderId, customerName, onSuccess }: ReviewFormProps
   const [submitting, setSubmitting] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
+  // Rate limiting: 3 reviews per hour
+  const { isLimited, remainingTime, checkLimit, recordAttempt } = useRateLimit({
+    maxAttempts: 3,
+    windowMs: 60 * 60 * 1000, // 1 hour
+    storageKey: `review_rate_limit_${user?.id || 'guest'}`,
+  });
+
+  useEffect(() => {
+    checkLimit();
+    const interval = setInterval(checkLimit, 1000);
+    return () => clearInterval(interval);
+  }, [checkLimit]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setValidationError(null);
+
+    // Check rate limit
+    if (checkLimit()) {
+      toast({
+        title: "Rate Limited",
+        description: `Please wait ${remainingTime} seconds before submitting another review.`,
+        variant: "destructive",
+      });
+      return;
+    }
 
     if (!user) {
       toast({
@@ -97,6 +121,9 @@ export function ReviewForm({ orderId, customerName, onSuccess }: ReviewFormProps
         }
       });
 
+      // Record successful submission for rate limiting
+      recordAttempt();
+
       toast({
         title: "Review Submitted!",
         description: "Thank you! Your review will appear after approval.",
@@ -119,6 +146,18 @@ export function ReviewForm({ orderId, customerName, onSuccess }: ReviewFormProps
       setSubmitting(false);
     }
   };
+
+  if (isLimited) {
+    return (
+      <div className="p-4 rounded-lg border border-warning/20 bg-warning/10 text-center">
+        <Clock className="h-8 w-8 mx-auto mb-2 text-warning" />
+        <p className="font-medium text-warning">Rate Limited</p>
+        <p className="text-sm text-muted-foreground mt-1">
+          Please wait {remainingTime} seconds before submitting another review.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
