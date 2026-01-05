@@ -50,7 +50,10 @@ export default function Auth() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/`,
+          // Return to /auth so we can show errors nicely if the OAuth flow fails
+          redirectTo: `${window.location.origin}/auth`,
+          // Some Google Workspace accounts require explicit email scope
+          scopes: 'https://www.googleapis.com/auth/userinfo.email',
         },
       });
 
