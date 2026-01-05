@@ -9,6 +9,9 @@ interface VerifyRequest {
   token: string;
 }
 
+// Minimum score threshold (0.0 = likely bot, 1.0 = likely human)
+const SCORE_THRESHOLD = 0.5;
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -42,10 +45,17 @@ const handler = async (req: Request): Promise<Response> => {
 
     const result = await response.json();
 
-    if (result.success) {
+    if (result.success && result.score >= SCORE_THRESHOLD) {
+      console.log(`reCAPTCHA verified with score: ${result.score}`);
       return new Response(
         JSON.stringify({ success: true, score: result.score }),
         { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    } else if (result.success && result.score < SCORE_THRESHOLD) {
+      console.warn(`reCAPTCHA score too low: ${result.score}`);
+      return new Response(
+        JSON.stringify({ success: false, error: "Low confidence score", score: result.score }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     } else {
       return new Response(
