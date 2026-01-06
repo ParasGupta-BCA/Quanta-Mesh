@@ -1,6 +1,9 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,10 +17,7 @@ const ADMIN_EMAILS = [
 ];
 
 interface ReviewNotificationRequest {
-  customerName: string;
-  rating: number;
-  reviewText: string;
-  orderId?: string;
+  reviewId: string;
 }
 
 const escapeHtml = (text: string): string => {
@@ -44,6 +44,33 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // === AUTHENTICATION CHECK ===
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader) {
+      console.error("No authorization header provided");
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Create authenticated Supabase client
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    // Verify the user is authenticated
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      console.error("Authentication failed:", authError?.message);
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log("Authenticated user:", user.id);
+
     if (!RESEND_API_KEY) {
       console.error("RESEND_API_KEY is not configured");
       return new Response(
@@ -52,20 +79,44 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const { customerName, rating, reviewText, orderId }: ReviewNotificationRequest = await req.json();
+    const { reviewId }: ReviewNotificationRequest = await req.json();
 
-    console.log("Review notification request:", { customerName, rating, orderId });
-
-    if (!customerName || !rating || !reviewText) {
+    if (!reviewId) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields: customerName, rating, or reviewText' }),
+        JSON.stringify({ error: 'Missing required field: reviewId' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const safeCustomerName = escapeHtml(customerName);
-    const safeReviewText = escapeHtml(reviewText);
-    const stars = generateStars(rating);
+    // === AUTHORIZATION CHECK: Verify user owns this review ===
+    const { data: review, error: reviewError } = await supabase
+      .from("reviews")
+      .select("id, user_id, customer_name, rating, review_text, order_id")
+      .eq("id", reviewId)
+      .single();
+
+    if (reviewError || !review) {
+      console.error("Review not found:", reviewError?.message);
+      return new Response(
+        JSON.stringify({ error: "Review not found" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Verify the authenticated user owns this review
+    if (review.user_id !== user.id) {
+      console.error("User does not own this review. User:", user.id, "Review owner:", review.user_id);
+      return new Response(
+        JSON.stringify({ error: "Forbidden" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log("Review notification request verified:", { reviewId, rating: review.rating });
+
+    const safeCustomerName = escapeHtml(review.customer_name);
+    const safeReviewText = escapeHtml(review.review_text);
+    const stars = generateStars(review.rating);
 
     const emailHtml = `
       <!DOCTYPE html>
@@ -87,10 +138,10 @@ const handler = async (req: Request): Promise<Response> => {
             </p>
             
             <p style="margin: 0 0 15px; font-size: 16px;">
-              <strong>Rating:</strong> <span style="color: #f59e0b; font-size: 20px;">${stars}</span> (${rating}/5)
+              <strong>Rating:</strong> <span style="color: #f59e0b; font-size: 20px;">${stars}</span> (${review.rating}/5)
             </p>
             
-            ${orderId ? `<p style="margin: 0 0 15px; font-size: 14px; color: #6b7280;"><strong>Order ID:</strong> ${escapeHtml(orderId)}</p>` : ''}
+            ${review.order_id ? `<p style="margin: 0 0 15px; font-size: 14px; color: #6b7280;"><strong>Order ID:</strong> ${escapeHtml(review.order_id)}</p>` : ''}
             
             <div style="background: #f3f4f6; padding: 15px; border-radius: 6px; margin-top: 15px;">
               <p style="margin: 0 0 5px; font-weight: bold; color: #374151;">Review:</p>
@@ -102,7 +153,7 @@ const handler = async (req: Request): Promise<Response> => {
             <p style="color: #6b7280; font-size: 14px; margin: 0 0 15px;">
               This review is pending approval. Please log in to the admin panel to approve or reject it.
             </p>
-            <a href="https://hnnlhddnettfaapyjggx.lovableproject.com/admin" 
+            <a href="https://www.quantamesh.store/admin" 
                style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 30px; border-radius: 6px; text-decoration: none; font-weight: bold;">
               Go to Admin Panel
             </a>
@@ -127,7 +178,7 @@ const handler = async (req: Request): Promise<Response> => {
         body: JSON.stringify({
           from: "Play Store Publisher <onboarding@resend.dev>",
           to: [email],
-          subject: `⭐ New ${rating}-Star Review from ${safeCustomerName}`,
+          subject: `⭐ New ${review.rating}-Star Review from ${safeCustomerName}`,
           html: emailHtml,
         }),
       })

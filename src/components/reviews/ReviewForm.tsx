@@ -100,7 +100,7 @@ export function ReviewForm({ orderId, customerName, onSuccess }: ReviewFormProps
         customer_name: validatedData.customerName,
         rating: validatedData.rating,
         review_text: validatedData.reviewText,
-      }).select();
+      }).select().single();
 
       if (error) {
         logError("Supabase insert error", error);
@@ -108,18 +108,18 @@ export function ReviewForm({ orderId, customerName, onSuccess }: ReviewFormProps
       }
 
       // Send email notification to admins (fire and forget)
-      supabase.functions.invoke("send-review-notification", {
-        body: {
-          customerName: validatedData.customerName,
-          rating: validatedData.rating,
-          reviewText: validatedData.reviewText,
-          orderId: validatedData.orderId,
-        },
-      }).then(({ error: notifError }) => {
-        if (notifError) {
-          logError("Failed to send review notification", notifError);
-        }
-      });
+      // Now passes only the reviewId - the edge function fetches data securely and verifies ownership
+      if (data?.id) {
+        supabase.functions.invoke("send-review-notification", {
+          body: {
+            reviewId: data.id,
+          },
+        }).then(({ error: notifError }) => {
+          if (notifError) {
+            logError("Failed to send review notification", notifError);
+          }
+        });
+      }
 
       // Record successful submission for rate limiting
       recordAttempt();
